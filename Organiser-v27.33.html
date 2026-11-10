@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#6b7280">
+<title>Organiser v27.1</title>
+<style>
+:root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
+[data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
+* { box-sizing:border-box; margin:0; padding:0; }
+body { font-family: Helvetica, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:var(--text); height:100dvh; overflow:hidden; }
+#app { display:flex; flex-direction:column; height:100%; }
+header { background:var(--surface); border-bottom:1px solid var(--border); padding:6px 16px; display:flex; align-items:center; justify-content:space-between; }
+header h1 { font-size:1.3rem; font-weight:650; }
+.header-actions { display:flex; gap:4px; } .header-actions button { background:none; border:none; padding:4px; color:var(--text); width:32px; height:32px; display:flex; align-items:center; justify-content:center; }
+#main { flex:1; overflow-y:auto; padding:12px 14px calc(var(--nav-h) + var(--safe-b) + 16px); }
+nav { position:fixed; bottom:0; left:0; right:0; height:calc(var(--nav-h) + var(--safe-b)); background:var(--surface); border-top:1px solid var(--border); display:flex; padding-bottom:var(--safe-b); }
+nav button { flex:1; background:none; border:none; font-size:0.68rem; color:var(--text-sec); padding:4px 0 16px; }
+nav button.active { color:var(--accent); font-weight:600; }
+.item { border-radius:10px; margin-bottom:5px; padding:7px 10px; }
+[data-theme="light"] .item { background:color-mix(in srgb, var(--c,#6b7280) 18%, var(--surface)); }
+[data-theme="dark"] .item { background:var(--c,#6b7280); color:#fff; }
+[data-theme="dark"] .item .m { color:rgba(255,255,255,0.85); }
+.item.done { opacity:0.55; }
+.item.selected { outline:3px solid #fff; }
+.item-inner { display:flex; align-items:flex-start; width:100%; }
+.item-inner > * { flex:0 0 auto; }
+.item input[type=checkbox] { width:22px; min-width:22px; margin-top:2px; margin-right:10px; }
+.item .txt { flex:1; min-width:0; }
+.item .t { font-weight:550; }
+.item .m { font-size:0.75rem; margin-top:2px; display:block; }
+.sec { margin-bottom:18px; }
+.sec h2 { font-size:1.15rem; font-weight:600; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; cursor:pointer; color:var(--text); }
+.sec-body.collapsed { display:none; }
+.block { background:var(--surface); border-radius:12px; margin-bottom:8px; border:1px solid var(--border); }
+.sec-h, .block-h { font-weight:500; }
+.block.off { opacity:0.5; }
+.block.off .block-h { text-decoration:line-through; }
+.modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:flex-end; z-index:100; }
+.modal.hide { display:none; }
+.modal-c { background:var(--surface); width:100%; max-height:92vh; border-radius:16px 16px 0 0; padding:16px; overflow-y:auto; }
+label { display:block; font-size:0.85rem; margin-top:8px; color:var(--text-sec); }
+input,select,textarea,.btn { width:100%; padding:11px; margin:4px 0 8px; border:1px solid var(--border); border-radius:10px; font-size:1rem; background:var(--bg); color:var(--text); }
+input[type=date], input[type=color] { height:44px; }
+.btn { background:#4a4a4e; color:#fff; border:none; font-weight:600; }
+.btn-main { background:#76BB40; color:#fff; }
+.small.btn { background:#4a4a4e; }
+.small { font-size:0.75rem; padding:5px 8px; width:auto; display:inline-block; }
+#ver { position:fixed; bottom:8px; right:10px; font-size:11px; opacity:0.6; background:var(--surface); padding:2px 6px; border-radius:4px; z-index:10; }
+.tag { display:inline-block; background:var(--border); color:var(--text); font-size:0.7rem; padding:2px 6px; border-radius:8px; margin-right:4px; }
+.habit-cal { display:flex; gap:4px; margin-top:6px; overflow-x:auto; padding-bottom:4px; }
+.habit-day { width:22px; height:22px; border-radius:50%; border:1.5px solid var(--border); display:inline-flex; align-items:center; justify-content:center; font-size:0.65rem; }
+.habit-day.done { background:#34c759; border-color:#34c759; color:#fff; }
+.habit-day.skip { background:transparent; border-style:dashed; }
+.habit-streak { height:2px; background:#34c759; margin:2px 0; }
+.netlify-badge, [data-netlify-badge], iframe[src*="netlify"], a[href*="netlify.com"] { display:none !important; }</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1 id="title">Today</h1>
+    <div class="header-actions">
+      <button id="search" title="Search"></button>
+      <button id="lookup" title="Look up"></button>
+      <button id="add" style="font-size:1.8rem;font-weight:300">+</button>
+    </div>
+  </header>
+  <main id="main"></main>
+  <nav>
+    <button data-p="today" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+    <button data-p="tasks" title="Tasks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
+    <button data-p="ideas" title="Ideas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg></button>
+    <button data-p="habits" title="Habits"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
+    <button data-p="cal" title="Calendar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+    <button data-p="inbox" title="Inbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></button>
+    <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
+  </nav>
+</div>
+<div id="ver">v27.33</div>
+<div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
+<script>
+document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
+document.getElementById('lookup').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>';
+
+const DB='org-v4';
+let db, page='today', settings={theme:'auto',gentle:true,search:'https://www.google.com/search?q=', sort:'due'};
+let selected = new Set();
+let selectMode = false;
+let routines = [
+  {id:1, name:'Morning', items:['Teeth → Skincare → Makeup','Baby feed + put down','Get dressed','Hair'], showOnToday:true},
+  {id:2, name:'School run', items:['Wake S','S → teeth, toilet, breakfast…','Leave 8.30'], showOnToday:true},
+  {id:3, name:'Daytime', items:['Work / Admin / House'], showOnToday:true},
+  {id:4, name:'Evening', items:['Dinner','Kids bedtime','Wind down'], showOnToday:true}
+];
+
+const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,2);r.onerror=()=>rej(r.error);r.onsuccess=()=>res(r.result);r.onupgradeneeded=e=>{const d=e.target.result;['items','projects','resources','settings','countdowns','notes'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:'id',autoIncrement:true});});};});
+async function init(){db=await openDB();await loadSet();applyTheme();document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.p);});document.getElementById('add').onclick=quickAdd;document.getElementById('search').onclick=inSearch;document.getElementById('lookup').onclick=()=>{const q=prompt('Look up:');if(q){const a=document.createElement('a');a.href=settings.search+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.click();}};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.add('hide');if((await all('items')).length===0)await seed();go('today');}
+async function loadSet(){const s=await all('settings');if(s[0])settings={...settings,...s[0]};}
+function saveSet(){db.transaction('settings','readwrite').objectStore('settings').put({id:1,...settings});}
+function applyScheme(){
+  const s = settings.scheme || 'default';
+  const root = document.documentElement;
+  if(s==='warm'){ root.style.setProperty('--bg','#1f1c1a'); root.style.setProperty('--surface','#2e2a28'); root.style.setProperty('--border','#3f3a37'); }
+  else if(s==='cool'){ root.style.setProperty('--bg','#1a1c1f'); root.style.setProperty('--surface','#282b2e'); root.style.setProperty('--border','#373a3e'); }
+  else { root.style.removeProperty('--bg'); root.style.removeProperty('--surface'); root.style.removeProperty('--border'); }
+}
+function applyTheme(){document.documentElement.dataset.theme=settings.theme==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):settings.theme; applyFont(); applyScheme();}
+function applyFont(){
+  const f = settings.font || 'Geneva,sans-serif';
+  document.body.style.fontFamily = f;
+  document.querySelectorAll('button,.btn,input,select,textarea,label,h1,h2,h3,.sec-h,.block-h,.item,.m,.t').forEach(el => { el.style.fontFamily = f; });
+}
+const all=s=>new Promise(r=>{const q=db.transaction(s).objectStore(s).getAll();q.onsuccess=()=>r(q.result||[]);});
+const put=(s,o)=>new Promise(r=>{const t=db.transaction(s,'readwrite');t.objectStore(s).put(o);t.oncomplete=r;});
+const add=(s,o)=>new Promise(r=>{const t=db.transaction(s,'readwrite');const q=t.objectStore(s).add(o);q.onsuccess=()=>r(q.result);});
+function modal(h){document.getElementById('mbody').innerHTML=h;document.getElementById('modal').classList.remove('hide');}
+
+
+function showRecExtra(){
+  const sel = document.getElementById('rec') || document.getElementById('erec');
+  if (!sel) return;
+  const v = sel.value;
+  const el = document.getElementById('recextra') || document.getElementById('erecextra');
+  if (!el) return;
+  if(v==='weekly') el.innerHTML = '<label>On day</label><select id="recday"><option>Any</option><option>Monday</option><option>Tuesday</option><option>Wednesday</option><option>Thursday</option><option>Friday</option><option>Saturday</option><option>Sunday</option></select>';
+  else if(v==='monthly') el.innerHTML = '<label>On the</label><input id="recdom" type="number" min="1" max="31" placeholder="e.g. 25">';
+  else if(v==='custom'){const t=(window._cur&&window._cur.recTimes)||2;const e=(window._cur&&window._cur.recEvery)||1;const p=(window._cur&&window._cur.recPeriod)||'days';el.innerHTML = `<label>Times</label><input id="rectimes" type="number" min="1" value="${t}"><label>Every</label><input id="recevery" type="number" min="1" value="${e}"><select id="recperiod"><option ${p==='days'?'selected':''}>days</option><option ${p==='weeks'?'selected':''}>weeks</option><option ${p==='months'?'selected':''}>months</option><option ${p==='years'?'selected':''}>years</option></select>`;}
+  else el.innerHTML = '';
+}
+async function quickAdd(){const items=await all('items');const ps=await all('projects');const cats=[...new Set(items.map(i=>i.cat).filter(Boolean))];setTimeout(()=>{const cl=document.getElementById('catlist');if(cl)cl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');const pl=document.getElementById('projlist');if(pl)pl.innerHTML=ps.map(p=>`<option value="${p.name}">`).join('');},50);
+  const defType = page==='ideas' ? 'idea' : 'task';
+  modal(`<h2>Quick Add</h2>
+    <input id="t" placeholder="Title" autofocus>
+    <label>Due date</label><input id="d" type="date">
+    <label>Recurrence</label><select id="rec" onchange="showRecExtra();document.getElementById('thabit').checked=!!this.value;document.getElementById('showcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="custom">X times every X period</option></select><div id="recextra"></div>
+    <label><input type="checkbox" id="remind"> Reminder</label>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <label><input type="checkbox" id="thabit"> Habit</label>
+      <label><input type="checkbox" id="showcal" checked> Calendar</label>
+      <label><input type="checkbox" id="showtoday" checked> Today</label>
+    </div>
+    <details style="margin:12px 0"><summary style="padding:8px 0">Details</summary>
+    <label>Category</label><input id="c" list="catlist" placeholder="Category" value="General"><datalist id="catlist"></datalist>
+    <label>Project</label><input id="proj" list="projlist" placeholder="Project"><datalist id="projlist"></datalist>
+    <label>Tags</label><input id="tags" placeholder="comma separated">
+    <label>Depends on</label><input id="dep" placeholder="Type task name..." oninput="suggestDepQuick(this.value)"><div id="depsugq" class="suggest"></div>
+    <label>Type</label><select id="ty"><option value="task" ${defType==='task'?'selected':''}>Task</option><option value="idea" ${defType==='idea'?'selected':''}>Idea</option></select>
+    <label>Image URL</label><input id="img" placeholder="optional">
+    <label>Notes</label><textarea id="notes"></textarea>
+    <label>Colour</label><input id="col" type="color" value="#6b7280">
+    </details>
+    <button class="btn btn-main" id="s">Add</button>`);
+  document.getElementById('s').onclick=async()=>{const title=document.getElementById('t').value.trim();if(!title)return;const tags=(document.getElementById('tags').value||'').split(',').map(t=>t.trim()).filter(Boolean);const projName=document.getElementById('proj').value.trim();let ps=await all('projects');let proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());if(projName&&!proj){await add('projects',{name:projName,created:Date.now(),trackProgress:true});ps=await all('projects');proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());}const depName=document.getElementById('dep')?.value.trim();let dependsOn=null;if(depName){const items=await all('items');const dep=items.find(i=>i.title.toLowerCase()===depName.toLowerCase());if(dep)dependsOn=dep.id;}await add('items',{title,type:document.getElementById('ty').value,due:document.getElementById('d').value||null,recurrence:document.getElementById('rec').value||null,done:false,color:(settings.catColors||{})[document.getElementById('c').value]||document.getElementById('col').value,cat:document.getElementById('c').value||'General',tags,projectId:proj?proj.id:null,created:Date.now(),notes:document.getElementById('notes')?.value||'',image:document.getElementById('img')?.value||'',subtasks:[],dependsOn,trackHabit:document.getElementById('rec').value ? true : document.getElementById('thabit').checked,showInCal:document.getElementById('showcal').checked,showInToday:document.getElementById('showtoday').checked,reminder:document.getElementById('remind').checked,completions:{}});document.getElementById('modal').classList.add('hide');go(page);};
+}
+
+function inSearch(){modal(`<h2>Search</h2><input id="q" placeholder="Search..." autofocus><div id="res"></div>`);document.getElementById('q').oninput=async e=>{const q=e.target.value.toLowerCase();const items=await all('items');document.getElementById('res').innerHTML=items.filter(i=>i.title.toLowerCase().includes(q)).map(i=>`<div class="item" style="--c:${i.color}"><div class="t">${i.title}</div></div>`).join('')||'No matches';};}
+
+async function go(p){
+  page=p; if(!selectMode)selected.clear();
+  const titles={today:'Today',tasks:'Tasks',ideas:'Ideas',habits:'Habits',cal:'Calendar',more:'More',inbox:'Inbox',projects:'Projects',resources:'Resources',review:'Insights',ins:'Insights',routines:'Routines',notes:'Notes'};
+  const svgs={
+    tasks:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
+    ideas:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg>',
+    habits:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+    cal:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>',
+    projects:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>',
+    resources:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>',
+    notes:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>'
+  };
+  const titleEl = document.querySelector('header h1');
+  if(p==='today'){
+    const d = new Date();
+    const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dateStr = `(${days[d.getDay()]} ${d.getDate()}${['st','nd','rd'][((d.getDate()+90)%100-10)%10-1]||'th'} ${months[d.getMonth()]} ${d.getFullYear()})`;
+    titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today <span style="font-size:0.75rem;font-weight:400;opacity:0.8">${dateStr}</span>`;
+  } else {
+    titleEl.innerHTML = (svgs[p] ? `<span style="margin-right:6px;vertical-align:middle">${svgs[p]}</span>` : '') + (titles[p]||p);
+  }
+  const m=document.getElementById('main');
+  if(p==='today')await renderToday(m);
+  else if(p==='tasks')await renderList(m,'task');
+  else if(p==='ideas')await renderList(m,'idea');
+  else if(p==='habits')await renderHabits(m);
+  else if(p==='cal')await renderCal(m);
+  else if(p==='inbox'){ titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>Inbox`; await renderInbox(m); }
+  else if(p==='projects')await renderProjects(m);
+  else if(p==='resources')await renderResources(m);
+  else if(p==='review'||p==='ins')await renderInsights(m);
+  else if(p==='routines')await renderRoutinesPage(m);
+  else if(p==='notes')await renderNotes(m);
+  else renderMore(m);
+  applyFont();
+}
+
+let calFiltOpen=false;function toggleCalHide(type, show){
+  settings.calHide = settings.calHide || [];
+  if(show) settings.calHide = settings.calHide.filter(x=>x!==type);
+  else if(!settings.calHide.includes(type)) settings.calHide.push(type);
+  saveSet();
+  const dayEl = document.getElementById("daylist");
+  const currentDay = dayEl ? (dayEl.querySelector("h3")||{}).textContent : null;
+  go("cal");
+  if(currentDay) setTimeout(()=>showDay(currentDay, true), 50);
+  saveSet();
+}
+function toggleRoutineLine(rid, idx){
+  const r = routines.find(x=>x.id===rid);
+  if(!r) return;
+  r.done = r.done || {};
+  r.done[idx] = !r.done[idx];
+  saveSet();
+  go('today');
+}
+function toggleSec(id){const el=document.getElementById(id);if(el){el.classList.toggle('collapsed');settings.collapsed=settings.collapsed||{};settings.collapsed[id]=el.classList.contains('collapsed');saveSet();const arrow=document.getElementById('arrow'+id.replace('rb',''));if(arrow)arrow.textContent=el.classList.contains('collapsed')?'+':'−';}}
+
+async function randomToday(){ const items = await all('items'); const open = items.filter(i=>!i.done); if(open.length) openItem(open[Math.floor(Math.random()*open.length)].id); }
+async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); h+='<div onclick="openItem('+i.id+')">'+i.title+' — due '+i.due+' (in '+d+' days)</div>';}); h+='</div>'; } const upR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return d>=0&&d<=30;}).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Reminders</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+d+'d</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Up next</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600" onclick="toggleSec('rb${b.id}')"><span>${b.name}</span><span id="arrow${b.id}" style="font-size:1rem;font-weight:400">−</span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>`<div style="padding:2px 0;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x}</div>`).join('')}</div></div>`;});h+='</div></div>';}el.innerHTML=h;bind();Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c){const e=document.getElementById(id);if(e)e.classList.add('collapsed');}});}
+
+async function renderHabits(el){
+  const items = (await all('items')).filter(i => i.trackHabit);
+  if (!items.length) { el.innerHTML = '<p style="color:var(--text-sec);padding:8px 0">Add a habit</p>'; return; }
+  const today = new Date();
+  const groups = {};
+  items.forEach(it => { const c = it.cat || 'None'; (groups[c] = groups[c] || []).push(it); });
+  let h = '<div class="sec"><h2>Habit Tracker <button class="small btn" onclick="bulkHabitLog()">Bulk log</button></h2>';
+  Object.keys(groups).forEach(c => {
+    h += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling; b.style.display=b.style.display===\'none\'?\'block\':\'none\'; settings.collapsed=settings.collapsed||{}; settings.collapsed[\'hab-\'+this.textContent.trim()]=b.style.display===\'none\'; saveSet();" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+c+'</div><div class="sec-body">';
+    groups[c].forEach(it => {
+    const comps = it.completions || {};
+    const rec = it.recurrence || 'daily';
+    const window = rec==='weekly'?10 : rec==='monthly'?40 : rec==='yearly'?400 : 3;
+    let streak = 0;
+    for(let i=0;i<60;i++){
+      const d = new Date(today); d.setDate(d.getDate()-i);
+      const k = d.toISOString().slice(0,10);
+      if(comps[k]==='done') streak++;
+      else if(comps[k]==='skip') break;
+      else if(i>window) break;
+    }
+    let cal = '<div class="habit-cal" style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px">';
+    for(let i=13;i>=0;i--){
+      const d = new Date(today); d.setDate(d.getDate()-i);
+      const k = d.toISOString().slice(0,10);
+      const st = comps[k];
+      cal += '<div style="width:22px;height:22px;border-radius:50%;background:'+(st==='done'?'#34c759':'#3a3a3c')+';border:'+(st==='skip'?'2px dotted #ff9500':'none')+';display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#fff;cursor:pointer" onclick="event.stopPropagation();quickMark('+it.id+',\''+k+'\')">'+(st==='done'?'✓':'')+'</div>';
+    }
+    cal += '</div>';
+    h += '<div class="block"><div class="block-h">'+it.title+' <span style="float:right;font-size:0.85rem">🔥 '+streak+'</span></div><div style="padding:8px 14px">'+cal+'</div></div>';
+    });
+    h += '</div></div>';
+  });
+  el.innerHTML = h;
+  if(settings.collapsed){ Object.keys(settings.collapsed).forEach(k=>{ if(k.startsWith('hab-') && settings.collapsed[k]){ document.querySelectorAll('.sec-h').forEach(el=>{ if(el.textContent.trim()===k.slice(4)){ el.nextElementSibling.style.display='none'; } }); } }); }
+}
+
+async function openHabitDetail(id){
+  const items=await all('items');
+  const it=items.find(x=>x.id==id);
+  if(!it)return;
+  const doneCount=Object.values(it.completions||{}).filter(s=>s==='done').length;
+  modal(`<h2>${it.title}</h2><p>Category: ${it.cat||'–'}</p><p>Recurrence: ${it.recurrence||'none'}</p><p>Completed days: ${doneCount}</p><p>Notes: ${it.notes||'none'}</p><button class="btn" onclick="document.getElementById('modal').classList.add('hide');openItem(${id})">Full edit</button>`);
+}
+async function quickMark(id,date){
+  const items=await all('items');
+  const it=items.find(x=>x.id==id);
+  if(!it)return;
+  it.completions=it.completions||{};
+  const cur=it.completions[date];
+  const next=cur==='done'?'skip':cur==='skip'?null:'done';
+  if(next) it.completions[date]=next; else delete it.completions[date];
+  const today=new Date().toISOString().slice(0,10);
+  if(date===today && it.recurrence){
+    if(next==='done' || next==='skip'){
+      if(!it._advancedToday){
+        const d=new Date(it.due||Date.now());
+        if(it.recurrence==='daily')d.setDate(d.getDate()+1);
+        else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
+        else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
+        else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
+        else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
+          const n=it.recEvery||1;
+          if(it.recPeriod==='days')d.setDate(d.getDate()+n);
+          else if(it.recPeriod==='weeks')d.setDate(d.getDate()+n*7);
+          else if(it.recPeriod==='months')d.setMonth(d.getMonth()+n);
+          else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()+n);
+        }
+        it.due=d.toISOString().slice(0,10);
+        it._advancedToday=true;
+      }
+      it.done=false;
+    } else {
+      // incomplete - revert if advanced
+      if(it._advancedToday){
+        const d=new Date(it.due);
+        if(it.recurrence==='daily')d.setDate(d.getDate()-1);
+        else if(it.recurrence==='weekly')d.setDate(d.getDate()-7);
+        else if(it.recurrence==='monthly')d.setMonth(d.getMonth()-1);
+        else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()-1);
+        else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
+          const n=it.recEvery||1;
+          if(it.recPeriod==='days')d.setDate(d.getDate()-n);
+          else if(it.recPeriod==='weeks')d.setDate(d.getDate()-n*7);
+          else if(it.recPeriod==='months')d.setMonth(d.getMonth()-n);
+          else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()-n);
+        }
+        it.due=d.toISOString().slice(0,10);
+        it._advancedToday=false;
+      }
+      it.done=false;
+    }
+  } else if(date===today && !it.recurrence){
+    it.done = next==='done';
+  }
+  if(next==='done'){const ts=new Date(date).getTime();if(!it.last||ts>it.last)it.last=ts;}
+  await put('items', JSON.parse(JSON.stringify(it)));
+  go('habits');
+}
+function bulkHabitLog(){
+  modal(`<h2>Bulk log past days</h2><label>Date</label><input id="bd" type="date" value="${new Date().toISOString().slice(0,10)}"><button class="btn" onclick="applyBulk('done')">Mark all Done</button><button class="btn" onclick="applyBulk('skip')">Mark all Skip</button><button class="btn" onclick="applyBulk(null)">Clear</button>`);
+}
+async function applyBulk(status){
+  const date=document.getElementById('bd').value;if(!date)return;
+  const items=await all('items');
+  for(const it of items.filter(i=>i.trackHabit)){
+    it.completions=it.completions||{};
+    if(status)it.completions[date]=status;else delete it.completions[date];
+    await put('items', JSON.parse(JSON.stringify(it)));
+  }
+  document.getElementById('modal').classList.add('hide');go('habits');
+}
+async function markHabit(id, status){
+  const items = await all('items');
+  const it = items.find(x => x.id == id);
+  if (!it) return;
+  it.completions = it.completions || {};
+  const key = new Date().toISOString().slice(0,10);
+  it.completions[key] = status;
+  if (status === 'done') {
+    it.last = Date.now();
+    if (it.recurrence) {
+      const d = new Date(it.due || Date.now());
+      if (it.recurrence === 'daily') d.setDate(d.getDate()+1);
+      else if (it.recurrence === 'weekly') d.setDate(d.getDate()+7);
+      else if (it.recurrence === 'monthly') d.setMonth(d.getMonth()+1);
+      else if (it.recurrence === 'yearly') d.setFullYear(d.getFullYear()+1);
+      else if (it.recurrence === 'custom' && it.recEvery && it.recPeriod) {
+        const n = it.recEvery || 1;
+        if (it.recPeriod === 'days') d.setDate(d.getDate()+n);
+        else if (it.recPeriod === 'weeks') d.setDate(d.getDate()+n*7);
+        else if (it.recPeriod === 'months') d.setMonth(d.getMonth()+n);
+        else if (it.recPeriod === 'years') d.setFullYear(d.getFullYear()+n);
+      }
+      it.due = d.toISOString().slice(0,10);
+      it.done = false;
+    } else {
+      it.done = true;
+    }
+  }
+  await put('items', it);
+  go('habits');
+}
+
+async function renderNotes(el){
+  const notes = await all('notes');
+  const board = settings.notesBoard;
+  let html = '<div class="sec"><button class="btn btn-main" onclick="quickAddNote()">+ New note</button> <button class="small btn" onclick="settings.notesBoard=!settings.notesBoard;saveSet();go(\'notes\')">'+(board?'List':'Board')+'</button></div>';
+  if(!notes.length) html += '<p style="color:var(--text-sec);padding:8px 0">Add a note</p>';
+  else if(board){
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px">';
+    notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};height:120px;padding:10px;display:flex;flex-direction:column;justify-content:flex-end" onclick="openNote(${n.id})"><div class="t" style="font-size:0.9rem">${n.title||'Untitled'}</div><div class="m" style="font-size:0.75rem;opacity:0.9">${(n.body||'').slice(0,60)}</div></div>`;
+    });
+    html += '</div>';
+  } else {
+    notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
+      html += `<div class="item" style="--c:${n.color||'#6b7280'}" onclick="openNote(${n.id})"><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+function quickAddNote(){
+  modal('<h2>New note</h2><input id="nt" placeholder="Title" autofocus><textarea id="nb" placeholder="Note" style="height:120px"></textarea><label>Colour</label><input id="nc" type="color" value="#6b7280"><button class="btn btn-main" onclick="add(\'notes\',{title:document.getElementById(\'nt\').value,body:document.getElementById(\'nb\').value,color:document.getElementById(\'nc\').value,created:Date.now(),updated:Date.now()}).then(()=>{document.getElementById(\'modal\').classList.add(\'hide\');go(\'notes\');})">Save</button>');
+}
+async function openNote(id){
+  const notes = await all('notes');
+  const n = notes.find(x=>x.id===id);
+  if(!n) return;
+  const col = n.color || '#6b7280';
+  modal(`<div style="background:${col};color:#fff;padding:16px;border-radius:12px;min-height:auto">
+    <input id="nt" value="${(n.title||'').replace(/"/g,'"')}" style="background:transparent;border:none;color:#fff;font-size:1.4rem;font-weight:600;width:100%;margin-bottom:12px;outline:none">
+    <textarea id="nb" style="background:transparent;border:none;color:#fff;width:100%;height:36vh;font-size:1rem;resize:vertical;outline:none">${n.body||''}</textarea>
+    <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
+      <input id="nc" type="color" value="${col}" style="width:48px;height:36px;padding:0;border:2px solid #000;border-radius:6px;background:transparent">
+      <button class="btn btn-main" style="flex:1" onclick="put('notes',{id:${id},title:document.getElementById('nt').value,body:document.getElementById('nb').value,color:document.getElementById('nc').value,created:${n.created||Date.now()},updated:Date.now()}).then(()=>{document.getElementById('modal').classList.add('hide');go('notes');})">Save</button>
+      <button class="btn" style="background:#c00;flex:1" onclick="confirmDeleteNote(${id})">Delete</button>
+    </div>
+  </div>`);
+}
+function autoSaveNote(id){
+  const title = document.getElementById('nt')?.value || '';
+  const body = document.getElementById('nb')?.value || '';
+  const color = document.getElementById('nc')?.value || '#6b7280';
+  put('notes', {id, title, body, color, updated: Date.now()});
+}
+function confirmDeleteNote(id){
+  modal('<h2>Delete note?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="const tx=db.transaction(\'notes\',\'readwrite\');tx.objectStore(\'notes\').delete('+id+');tx.oncomplete=()=>{document.getElementById(\'modal\').classList.add(\'hide\');go(\'notes\');}">Delete</button><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'hide\')">Cancel</button>');
+}
+async function renderRoutinesPage(el){
+  let h = `<div class="sec"><button class="btn" onclick="addNewRoutine()">+ New routine</button>`;
+  routines.forEach((b,idx)=>{
+    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">−</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>'• '+x).join('<br>')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">Today</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
+  });
+  el.innerHTML = h + '</div>';
+  Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c && id.startsWith('rp')){const e=document.getElementById(id);if(e)e.classList.add('collapsed');const arrow=document.getElementById('arrow'+id);if(arrow)arrow.textContent='+';}});
+}
+
+function moveRoutine(idx, dir){
+  const newIdx = idx + dir;
+  if(newIdx < 0 || newIdx >= routines.length) return;
+  const tmp = routines[idx];
+  routines[idx] = routines[newIdx];
+  routines[newIdx] = tmp;
+  go('routines');
+}
+function confirmDeleteRoutine(id){
+  modal('<h2>Delete routine?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="routines=routines.filter(x=>x.id!=='+id+');document.getElementById(\'modal\').classList.add(\'hide\');go(\'routines\')">Delete</button><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'hide\')">Cancel</button>');
+}
+function addNewRoutine(){const name=prompt('Routine name?')||'New routine';routines.push({id:Date.now(),name,items:[''],showOnToday:false});go('routines');}
+function renameRoutine(id){const r=routines.find(x=>x.id===id);if(!r)return;modal(`<h2>Rename</h2><input id="rname" value="${r.name}"><button class="btn btn-main" id="rn">Save</button>`);document.getElementById('rn').onclick=()=>{r.name=document.getElementById('rname').value||r.name;document.getElementById('modal').classList.add('hide');go('routines');};}
+function toggleRoutineToday(id){const r=routines.find(x=>x.id===id);if(r)r.showOnToday=!r.showOnToday;go('routines');}
+function editOneRoutine(id){const b=routines.find(x=>x.id===id);if(!b)return;let html=`<h2>Edit ${b.name}</h2>`;(b.items||[]).forEach((item,j)=>{html+=`<input value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value">`;});html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');editOneRoutine(${id})">+ Item</button><button class="btn" onclick="document.getElementById('modal').classList.add('hide');go('routines')">Done</button>`;modal(html);}
+
+function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');const dep=i.dependsOn?' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>':'';return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'}" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}${dep}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div></div>`;}
+
+function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);if(page==='tasks'||page==='ideas')renderList(document.getElementById('main'),page==='tasks'?'task':'idea');}
+
+function addSub(){ const t = document.getElementById('newsub').value.trim(); if(!t) return; window._cur.subtasks = window._cur.subtasks || []; window._cur.subtasks.push({title:t, done:false}); document.getElementById('newsub').value=''; renderSubs(); }
+function renderSubs(){ const el = document.getElementById('sublist'); if(!el) return; el.innerHTML = (window._cur.subtasks||[]).map((s,i) => `<div style="display:table;width:100%;margin:4px 0"><div style="display:table-cell;width:30px"><input type="checkbox" ${s.done?'checked':''} onchange="window._cur.subtasks[${i}].done=this.checked"></div><div style="display:table-cell">${s.title}</div><div style="display:table-cell;width:40px;text-align:right"><button class="small btn" onclick="window._cur.subtasks.splice(${i},1);renderSubs()">×</span></div></div>`).join('') || ''; }
+async function openItem(id){
+  const items = await all('items');
+  const it = items.find(x => x.id == id);
+  if (!it) return;
+  window._cur = it;
+  modal(`<h2>Edit</h2>
+    <input id="et" value="${(it.title||'').replace(/"/g,'"')}">
+    <label>Due date</label><input id="ed" type="date" value="${it.due||''}">
+    <label>Recurrence</label><select id="erec" onchange="showRecExtra();document.getElementById('eth').checked=!!this.value;document.getElementById('eshowcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily" ${it.recurrence==='daily'?'selected':''}>Daily</option><option value="weekly" ${it.recurrence==='weekly'?'selected':''}>Weekly</option><option value="monthly" ${it.recurrence==='monthly'?'selected':''}>Monthly</option><option value="yearly" ${it.recurrence==='yearly'?'selected':''}>Yearly</option><option value="custom" ${it.recurrence==='custom'?'selected':''}>Custom</option></select><div id="erecextra"></div>
+    
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><label><input type="checkbox" id="eth" ${it.trackHabit?'checked':''}> Habit</label><label><input type="checkbox" id="eshowcal" ${it.showInCal!==false?'checked':''}> Calendar</label><label><input type="checkbox" id="eshowtoday" ${it.showInToday!==false?'checked':''}> Today</label><label><input type="checkbox" id="eremind" ${it.reminder?'checked':''} onchange="var o=document.getElementById('eremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label></div><div id="eremopts" style="display:${it.reminder?'block':'none'}"><select id="erem1"><option value="">None</option><option value="0d">On the day</option><option value="1d" ${it.rem1==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem1==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem1==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem1==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem1==='28d'?'selected':''}>4 weeks before</option></select><select id="erem2"><option value="">None</option><option value="0d" ${it.rem2==='0d'?'selected':''}>On the day</option><option value="1d" ${it.rem2==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem2==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem2==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem2==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem2==='28d'?'selected':''}>4 weeks before</option></select></div>
+    <label>Category</label><input id="ecat" value="${it.cat||''}">
+    <label>Project</label><input id="eproj" list="eprojlist" placeholder="Project"><datalist id="eprojlist"></datalist>
+    <label>Tags</label><input id="etags" value="${(it.tags||[]).join(', ')}">
+    <label>Depends on</label><input id="edep" placeholder="Type task name..." oninput="suggestDep(this.value)"><div id="depsug" class="suggest"></div>
+    <label>Type</label><select id="etype"><option ${it.type==='task'?'selected':''}>task</option><option ${it.type==='idea'?'selected':''}>idea</option></select>
+    <label>Image URL</label><input id="eimg" value="${it.image||''}" placeholder="optional">
+    <label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById('eimg').value=r.result;};r.readAsDataURL(f);}">
+    <label>Notes</label><textarea id="en">${it.notes||''}</textarea>
+    <label>Colour</label><input id="ecol" type="color" value="${it.color||'#6b7280'}">
+    <h3>Subtasks</h3><div id="sublist"></div><input id="newsub" placeholder="Add subtask"><button class="small btn" onclick="addSub()">+ Add</button>
+    </details><button class="btn btn-main" id="es">Save</button>
+    <button class="btn" style="background:#555" onclick="toggleComplete(${id})">${it.done?'Mark incomplete':'Mark complete'}</button>
+    <button class="btn" style="background:#c00" onclick="confirmDel(${id})">Delete</button>`);
+  setTimeout(showRecExtra, 50); setTimeout(renderSubs, 50); document.getElementById('es').onclick = async () => {
+    it.title = document.getElementById('et').value;
+    it.notes = document.getElementById('en').value;
+    it.due = document.getElementById('ed').value || null;
+    it.color = (settings.catColors||{})[document.getElementById('ecat').value] || document.getElementById('ecol').value;
+    it.type = document.getElementById('etype').value;
+    it.recurrence = document.getElementById('erec').value || null;
+    const projName = document.getElementById('eproj') ? document.getElementById('eproj').value.trim() : ''; if (projName) { let ps = await all('projects'); let proj = ps.find(p => p.name.toLowerCase() === projName.toLowerCase()); if (!proj) { await add('projects', {name:projName, created:Date.now(), trackProgress:true}); ps = await all('projects'); proj = ps.find(p => p.name.toLowerCase() === projName.toLowerCase()); } it.projectId = proj ? proj.id : null; } it.cat = document.getElementById('ecat').value;
+    it.tags = document.getElementById('etags').value.split(',').map(t => t.trim()).filter(Boolean);
+    it.trackHabit = document.getElementById('eth').checked; it.reminder = document.getElementById('eremind')?.checked||false; it.showInToday = document.getElementById('eshowtoday')?.checked!==false; it.showInCal = document.getElementById('eshowcal')?.checked!==false; it.rem1 = document.getElementById('erem1')?.value||''; it.rem2 = document.getElementById('erem2')?.value||'';
+    it.completions = it.completions || {};
+    await put('items', it);
+    document.getElementById('modal').classList.add('hide');
+    go(page);
+  };
+}
+
+async function suggestDep(q){const items=await all('items');const m=q?items.filter(i=>i.title.toLowerCase().includes(q.toLowerCase())).slice(0,6):[];document.getElementById('depsug').innerHTML=m.map(i=>`<div onclick="window._cur.dependsOn=${i.id};document.getElementById('edep').value='${i.title.replace(/'/g,"\\'")}';document.getElementById('depsug').innerHTML=''">${i.title}</div>`).join('')||'';}
+
+async function suggestDepQuick(q){const items=await all('items');const m=q?items.filter(i=>i.title.toLowerCase().includes(q.toLowerCase())).slice(0,6):[];const el=document.getElementById('depsugq');if(el)el.innerHTML=m.map(i=>`<div onclick="document.getElementById('dep').value='${i.title.replace(/'/g,"\\'")}';document.getElementById('depsugq').innerHTML=''">${i.title}</div>`).join('')||'';}
+
+async function toggleComplete(id){
+  const items = await all('items');
+  const it = items.find(x => x.id == id);
+  if(!it) return;
+  it.done = !it.done;
+  const todayKey = new Date().toISOString().slice(0,10);
+  it.completions = it.completions || {};
+  if(it.done){
+    it.last = Date.now();
+    it.completions[todayKey] = 'done';
+  } else {
+    delete it.completions[todayKey];
+  }
+  await put('items', it);
+  document.getElementById('modal').classList.add('hide');
+  go(page);
+}
+function confirmDel(id){
+  const mbody = document.getElementById('mbody');
+  mbody.innerHTML = `<h2>Delete?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="delItem(${id})">Yes, delete</button><button class="btn" style="background:#666" onclick="openItem(${id})">Cancel</button>`;
+}
+async function delItem(id){ const tx=db.transaction('items','readwrite'); tx.objectStore('items').delete(Number(id)); tx.oncomplete=()=>{document.getElementById('modal').classList.add('hide');go(page);}; }
+function reschedule(id){modal(`<h2>Reschedule</h2><button class="btn" onclick="doResched(${id},1)">Tomorrow</button><button class="btn" onclick="doResched(${id},7)">In 1 week</button><input id="rdays" type="number" placeholder="X days"><button class="btn" onclick="doResched(${id},+document.getElementById('rdays').value||1)">Apply</button>`);}
+async function doResched(id,days){const items=await all('items');const it=items.find(x=>x.id==id);if(!it)return;const d=new Date();d.setDate(d.getDate()+Number(days));it.due=d.toISOString().slice(0,10);await put('items', JSON.parse(JSON.stringify(it)));document.getElementById('modal').classList.add('hide');go(page);}
+
+function bind(){document.querySelectorAll('input[data-id]').forEach(c=>c.onchange=async()=>{
+  const items=await all('items');
+  const it=items.find(x=>x.id==c.dataset.id);
+  if(!it)return;
+  const todayKey=new Date().toISOString().slice(0,10);
+  if(c.checked){ c.parentElement.style.opacity="0.5"; setTimeout(()=>c.parentElement.style.opacity="",400);
+    it.last=Date.now();
+    it.completions=it.completions||{};
+    it.completions = it.completions || {}; it.completions[todayKey]='done';
+    if(it.recurrence){
+      const d=new Date(it.due||Date.now());
+      if(it.recurrence==='daily')d.setDate(d.getDate()+1);
+      else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
+      else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
+      else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
+      else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
+        const n=it.recEvery||1;
+        if(it.recPeriod==='days')d.setDate(d.getDate()+n);
+        else if(it.recPeriod==='weeks')d.setDate(d.getDate()+n*7);
+        else if(it.recPeriod==='months')d.setMonth(d.getMonth()+n);
+        else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()+n);
+      }
+      it.due=d.toISOString().slice(0,10);
+      it.done=false; // stays open for next occurrence
+    } else {
+      it.done=true;
+    }
+  } else {
+    it.done=false;
+    if (it.completions) delete it.completions[todayKey];
+  }
+  await put('items', JSON.parse(JSON.stringify(it)));
+  go(page);
+});}
+
+async function renderList(el,type){let items=(await all('items')).filter(i=>i.type===type);if(settings.sort==='alpha'){items.sort((a,b)=>{if(settings.secSort==='cat'){const c=(a.cat||'').localeCompare(b.cat||'');if(c)return c;}else if(settings.secSort==='due'){const d=(a.due||'9999').localeCompare(b.due||'9999');if(d)return d;}return a.title.localeCompare(b.title);});}else if(settings.sort==='cat'){items.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')|| (settings.secSort==='alpha'?a.title.localeCompare(b.title):(settings.secSort==='due'?(a.due||'9999').localeCompare(b.due||'9999'):0)) );}else items.sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.due||'9999').localeCompare(b.due||'9999'));let extra=`<div id="sortwrap" style="display:${settings.showSort?'block':'none'};margin-bottom:8px"><select class="small" onchange="settings.sort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.sort==='due'?'selected':''}>Group by date</option><option value="cat" ${settings.sort==='cat'?'selected':''}>Group by category</option><option value="alpha" ${settings.sort==='alpha'?'selected':''}>A–Z</option></select> <select class="small" onchange="settings.secSort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.secSort==='due'?'selected':''}>Then by date</option><option value="cat" ${settings.secSort==='cat'?'selected':''}>Then by category</option><option value="alpha" ${settings.secSort==='alpha'?'selected':''}>Then A–Z</option></select></div>`;if(selectMode)extra+=`<button class="small btn" onclick="selectMode=false;selected.clear();go(page)">Done</button> `;else extra+=`<button class="small btn" onclick="settings.showSort=!settings.showSort;saveSet();go(page)">Sort</button> <button class="small btn" onclick="settings.taskBoard=!settings.taskBoard;saveSet();go(page)">${settings.taskBoard?'List':'Board'}</button> <button class="small btn" onclick="showPasteModal()">Paste</button> <button class="small btn" onclick="selectMode=true;go(page)">Select</button> `;if(selected.size && selectMode)extra+=`<div style="margin-top:6px"><button class="small btn" style="background:#555" onclick="bulkResched()">Reschedule</button> <button class="small btn" style="background:#555" onclick="bulkComplete()">Complete</button> <button class="small btn" style="background:#555" onclick="bulkIncomplete()">Incomplete</button> <button class="small btn" style="background:#c00" onclick="bulkDelete()">Delete</button></div>`;if(settings.taskBoard && type==='task'){el.innerHTML=`<div class="sec">${extra}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;row-gap:12px">${items.map(i=>`<div class="item" style="--c:${i.color};height:100px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px" onclick="openItem(${i.id})"><div class="t">${i.title}</div></div>`).join('')}</div></div>`;}else if(settings.sort==='cat'){
+    const groups={};
+    items.forEach(i=>{const c=i.cat||'None';(groups[c]=groups[c]||[]).push(i);});
+    let body='';
+    Object.keys(groups).forEach(c=>{
+      body+='<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+c+'</div><div class="sec-body">'+groups[c].map(row).join('')+'</div></div>';
+    });
+    el.innerHTML='<div class="sec">'+extra+body+'</div>';
+    if(settings.collapsed){Object.keys(settings.collapsed).forEach(k=>{if(k.startsWith('task-')&&settings.collapsed[k]){document.querySelectorAll('.sec-h').forEach(el=>{if(el.textContent.trim()===k.slice(5))el.nextElementSibling.style.display='none';});}});}
+  }else{ const today=new Date().toISOString().slice(0,10); const ov=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); const ovIds=new Set(ov.map(i=>i.id)); const rest=items.filter(i=>!ovIds.has(i.id)); let body=''; if(ov.length){ body+='<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">Overdue</div><div class="sec-body">'+ov.map(row).join('')+'</div></div>'; } if (settings.sort === 'due' && type === 'task') {
+    const today = new Date().toISOString().slice(0,10);
+    const now=new Date(); const todayS=now.toISOString().slice(0,10); const tom=new Date(now.getTime()+86400000).toISOString().slice(0,10); const sun=new Date(now); sun.setDate(now.getDate()+(7-now.getDay())%7); const sunS=sun.toISOString().slice(0,10); const eom=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().slice(0,10); const eoy=now.getFullYear()+'-12-31'; const groups={Today:[],Tomorrow:[],'This week':[],'This month':[],[now.getFullYear()]:[],'Later':[],'No date':[]};
+    if(settings.secSort==='cat') rest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') rest.sort((a,b)=>a.title.localeCompare(b.title)); var sortedRest = rest.slice(); if(settings.secSort==='cat') sortedRest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') sortedRest.sort((a,b)=>a.title.localeCompare(b.title)); sortedRest.forEach(i => {
+      if (!i.due) groups['No date'].push(i);
+      else if (i.due === todayS) groups.Today.push(i);
+      else if (i.due === tom) groups.Tomorrow.push(i);
+      else if (i.due <= sunS) groups['This week'].push(i);
+      else if (i.due <= eom) groups['This month'].push(i);
+      else if (i.due <= eoy) groups[now.getFullYear()].push(i);
+      else groups.Later.push(i);
+    });
+    const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date']; for (const name of order) { const list=groups[name]; if(!list) continue; if(settings.secSort==='cat') list.sort((a,b)=>(a.cat||'zzz').localeCompare(b.cat||'zzz')); else if(settings.secSort==='alpha') list.sort((a,b)=>a.title.localeCompare(b.title)); else if(settings.secSort==='due') list.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')); if (list.length) body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+list.map(row).join('')+'</div></div>'; }
+  } else body = items.map(row).join('');
+  el.innerHTML=`<div class="sec">${extra}<br><br>${body||'<p>None</p>'}</div>`;}bind(); applyTaskCollapsed();}
+
+function applyTaskCollapsed(){
+  if(!settings.collapsed) return;
+  Object.keys(settings.collapsed).forEach(k=>{
+    if(k.startsWith('task-') && settings.collapsed[k]){
+      document.querySelectorAll('.sec-h').forEach(el=>{
+        if(el.textContent.trim()===k.slice(5)){
+          const body = el.nextElementSibling;
+          if(body) body.style.display='none';
+        }
+      });
+    }
+  });
+}
+
+function showPasteModal(){
+  modal(`<h2>Paste Tasks</h2>
+    <textarea id="paste" placeholder="One task per line" style="height:120px"></textarea>
+    <label>Due date (shared)</label><input id="pdue" type="date">
+    <label>Recurrence (shared)</label><select id="prec"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select>
+    <label>Category (shared)</label><input id="pcat" value="General">
+    <label>Colour</label><input id="pcol" type="color" value="#6b7280">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:8px 0">
+      <label><input type="checkbox" id="phabit"> Habit</label>
+      <label><input type="checkbox" id="ptoday" checked> Today</label>
+      <label><input type="checkbox" id="pcal" checked> Calendar</label>
+      <label><input type="checkbox" id="premind" onchange="document.getElementById('premotps').style.display=this.checked?'block':'none'"> Reminder</label>
+    </div>
+    <div id="premotps" style="display:none">
+      <select id="prem1"><option value="">None</option><option value="0d">On the day</option><option value="1d">1 day before</option><option value="2d">2 days before</option><option value="7d">1 week before</option><option value="14d">2 weeks before</option><option value="28d">4 weeks before</option></select>
+      <select id="prem2"><option value="">None</option><option value="0d">On the day</option><option value="1d">1 day before</option><option value="2d">2 days before</option><option value="7d">1 week before</option><option value="14d">2 weeks before</option><option value="28d">4 weeks before</option></select>
+    </div>
+    <button class="btn btn-main" onclick="doPaste()">Add Tasks</button>`);
+}
+async function doPaste(){
+  const text = document.getElementById('paste').value;
+  if(!text.trim()) return;
+  const due = document.getElementById('pdue').value || null;
+  const rec = document.getElementById('prec').value || null;
+  const cat = document.getElementById('pcat').value || 'General';
+  const col = (settings.catColors||{})[cat] || document.getElementById('pcol').value;
+  const habit = document.getElementById('phabit').checked;
+  const showToday = document.getElementById('ptoday').checked;
+  const showCal = document.getElementById('pcal').checked;
+  const remind = document.getElementById('premind').checked;
+  const rem1 = document.getElementById('prem1')?.value || '';
+  const rem2 = document.getElementById('prem2')?.value || '';
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  for(const title of lines){
+    await add('items',{title, type:'task', due, recurrence:rec, done:false, color:col, cat, created:Date.now(), trackHabit:habit || !!rec, showInCal:showCal, showInToday:showToday, reminder:remind, rem1, rem2, completions:{}});
+  }
+  document.getElementById('modal').classList.add('hide');
+  go('tasks');
+}
+
+function bulkResched(){
+  modal(`<h2>Reschedule selected</h2>
+    <label>Days from current due date</label><input id="brdays" type="number" placeholder="e.g. 3">
+    <label>Or exact date</label><input id="brdate" type="date">
+    <button class="btn btn-main" onclick="doBulkResched()">Apply</button>`);
+}
+async function doBulkResched(){
+  const days = document.getElementById('brdays').value;
+  const date = document.getElementById('brdate').value;
+  if(!days && !date) return;
+  const items = await all('items');
+  for(const id of selected){
+    const it = items.find(x=>x.id==id);
+    if(!it) continue;
+    if(date) it.due = date;
+    else if(days){
+      const d = new Date(it.due || Date.now());
+      d.setDate(d.getDate() + Number(days));
+      it.due = d.toISOString().slice(0,10);
+    }
+    await put('items', JSON.parse(JSON.stringify(it)));
+  }
+  selected.clear(); selectMode=false;
+  document.getElementById('modal').classList.add('hide');
+  go(page);
+}
+async function bulkDelete(){
+  modal(`<h2>Delete selected?</h2><p>${selected.size} item(s)</p><button class="btn" style="background:#c00" onclick="doBulkDelete()">Yes, delete</button><button class="btn" onclick="document.getElementById('modal').classList.add('hide')">Cancel</button>`);
+}
+async function doBulkDelete(){
+  for(const id of selected){
+    await new Promise(r=>{const tx=db.transaction('items','readwrite');tx.objectStore('items').delete(id);tx.oncomplete=r;});
+  }
+  selected.clear(); selectMode=false;
+  document.getElementById('modal').classList.add('hide');
+  go(page);
+}
+async function bulkComplete(){const items=await all('items');const todayKey=new Date().toISOString().slice(0,10);for(const id of selected){const it=items.find(x=>x.id==id);if(it){it.done=true;it.last=Date.now();it.completions=it.completions||{};it.completions[todayKey]='done';await put('items', JSON.parse(JSON.stringify(it)));}}selected.clear();selectMode=false;go(page);}
+async function bulkIncomplete(){const items=await all('items');const todayKey=new Date().toISOString().slice(0,10);for(const id of selected){const it=items.find(x=>x.id==id);if(it){it.done=false;if(it.completions) delete it.completions[todayKey];await put('items', JSON.parse(JSON.stringify(it)));}}selected.clear();selectMode=false;go(page);}
+async function randomItem(type){const items=(await all('items')).filter(i=>i.type===type&&!i.done);if(items.length)openItem(items[Math.floor(Math.random()*items.length)].id);}
+
+let calMonth = new Date().getMonth(), calYear = new Date().getFullYear();
+let keepCalFilt=false;async function renderCal(el){
+  const items = await all('items');
+  const byDate = {};
+  const hide = settings.calHide || [];
+  items.filter(i => {
+    if (i.showInCal === false) return false;
+    if (settings.calCat && (i.cat||'') !== settings.calCat) return false;
+    const rt = (i.recurrence || 'none');
+    if (settings.calHide && settings.calHide.includes(rt)) return false;
+    return true;
+  }).forEach(i => { if (i.due) (byDate[i.due] = byDate[i.due] || []).push(i); });
+  const year = calYear, month = calMonth;
+  const first = new Date(year, month, 1);
+  const days = new Date(year, month+1, 0).getDate();
+  let h = '<div class="sec"><button class="small btn" onclick="settings.calView=settings.calView===\'month\'?\'day\':settings.calView===\'day\'?\'week\':\'month\';saveSet();go(\'cal\')">'+( (settings.calView||'month').charAt(0).toUpperCase()+(settings.calView||'month').slice(1) )+'</button> <button class="small btn" onclick="var f=document.getElementById(\'calfilt\');if(f)f.style.display=f.style.display===\'none\'?\'block\':\'none\'">Filters</button><div id="calfilt" class="sec-body" style="display:block"><select onchange="settings.calCat=this.value;saveSet();go(\'cal\')" style="margin-bottom:8px;width:auto;padding:4px 8px;font-size:0.85rem"><option value="">All categories</option>'+([...new Set(items.map(i=>i.cat).filter(Boolean))].map(c=>'<option value="'+c+'" '+(settings.calCat===c?'selected':'')+'>'+c+'</option>').join(''))+'</select><div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><br><label><input type="checkbox" '+( !settings.calHide||!settings.calHide.includes('none')?'checked':'')+' onchange="toggleCalHide(\'none\',this.checked)"> None</label> <label><input type="checkbox" '+( !settings.calHide||!settings.calHide.includes('yearly')?'checked':'')+' onchange="toggleCalHide(\'yearly\',this.checked)"> Yearly</label> <label><input type="checkbox" '+( !settings.calHide||!settings.calHide.includes('monthly')?'checked':'')+' onchange="toggleCalHide(\'monthly\',this.checked)"> Monthly</label> <label><input type="checkbox" '+( !settings.calHide||!settings.calHide.includes('weekly')?'checked':'')+' onchange="toggleCalHide(\'weekly\',this.checked)"> Weekly</label> <label><input type="checkbox" '+( !settings.calHide||!settings.calHide.includes('daily')?'checked':'')+' onchange="toggleCalHide(\'daily\',this.checked)"> Daily</label></div></div><h2><button class="small btn" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--;}go(\'cal\')">‹</button> ' + new Date(year,month).toLocaleString('default',{month:'long'}) + ' ' + year + ' <button class="small btn" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++;}go(\'cal\')">›</button></h2><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:0.75rem">';
+  ['S','M','T','W','T','F','S'].forEach(d => h += '<div>'+d+'</div>');
+  for (let i = 0; i < first.getDay(); i++) h += '<div></div>';
+  const view = settings.calView || 'month';  if((settings.calView||'month')==='week'){
+    const now=new Date(); const start=new Date(now); start.setDate(now.getDate()-now.getDay());
+    h = h.replace(/<div style="display:grid;grid-template-columns:repeat\(7,1fr\)[^>]*>/, '<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;font-size:0.75rem">');
+    for(let i=0;i<7;i++){
+      const dd=new Date(start); dd.setDate(start.getDate()+i);
+      const key=dd.toISOString().slice(0,10);
+      const list=(byDate[key]||[]).map(i=>`<div class="item" style="--c:${i.color};font-size:0.7rem;padding:4px;margin:2px 0" onclick="openItem(${i.id})">${i.title}</div>`).join('');
+      h += `<div style="min-height:calc(100vh - 220px);border:1px solid var(--border);border-radius:8px;padding:4px"><div style="font-weight:600;margin-bottom:4px">${dd.getDate()}</div>${list||'<div style="opacity:0.4">—</div>'}</div>`;
+    }
+    h += '</div></div>'; el.innerHTML = h; return;
+  } else for (let d = 1; d <= days; d++) {
+    const key = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const has = byDate[key] ? byDate[key].length : 0;
+    h += `<div style="padding:8px 0;border-radius:8px;${has?'background:var(--accent);color:#fff':''}" onclick="showDay('${key}', true)">${d}</div>`;
+  }
+  h += '</div><div id="daylist" style="margin-top:12px"></div></div>';
+  el.innerHTML = h; if((settings.calView||'month')==='day'){ const today=new Date().toISOString().slice(0,10); setTimeout(()=>showDay(today, true), 30); }
+}
+async function showDay(key, inline){
+  const items = await all('items');
+  const dayItems = items.filter(i => { if(i.due !== key) return false; if(i.showInCal===false) return false; const rt=i.recurrence||'none'; if(settings.calHide && settings.calHide.includes(rt)) return false; return true; });
+  if(inline){ const el=document.getElementById('daylist'); if(el) el.innerHTML = '<h3>'+key+'</h3>' + (dayItems.map(i => '<div class="item" draggable="true" style="--c:'+i.color+'" onclick="openItem('+i.id+')"><div class="t">'+i.title+'</div></div>').join('') || '<p>Nothing</p>'); } else { const el=document.getElementById('daylist'); if(el) el.innerHTML = '<h3>'+key+'</h3>' + (dayItems.map(i => '<div class="item" draggable="true" style="--c:'+i.color+'" onclick="openItem('+i.id+')"><div class="t">'+i.title+'</div></div>').join('') || '<p>Nothing</p>'); }
+}
+
+async function renderInbox(el){const items=(await all('items')).filter(i=>!i.cat||i.cat==='General'||!i.due);el.innerHTML=`<div class="sec">${items.map(row).join('')||'<p style="color:var(--text-sec);padding:8px 0">Add a task</p>'}</div>`;bind();}
+async function renderProjects(el){
+  const ps = await all('projects');
+  const items = await all('items');
+  const sort = settings.projSort || 'alpha';
+  let sorted = [...ps];
+  if(sort === 'alpha') sorted.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  else if(sort === 'date') sorted.sort((a,b)=> (b.created||0) - (a.created||0));
+  else if(sort === 'cat') sorted.sort((a,b)=> (a.cat||'zzz').localeCompare(b.cat||'zzz') || (a.name||'').localeCompare(b.name||''));
+  let html = `<div class="sec">
+    <button class="btn" onclick="addProject()">+ New Project</button>
+    <select onchange="settings.projSort=this.value;saveSet();go('projects')" style="margin:8px 0">
+      <option value="alpha" ${sort==='alpha'?'selected':''}>A–Z</option>
+      <option value="date" ${sort==='date'?'selected':''}>By created date</option>
+      <option value="cat" ${sort==='cat'?'selected':''}>By category</option>
+    </select>`;
+  if(sort === 'cat'){
+    const groups = {};
+    sorted.forEach(p => { const c = p.cat || 'None'; (groups[c] = groups[c] || []).push(p); });
+    Object.keys(groups).forEach(c => {
+      html += `<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';settings.collapsed=settings.collapsed||{};settings.collapsed['proj-'+this.textContent.trim()]=b.style.display==='none';saveSet();" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">${c}</div><div class="sec-body">`;
+      groups[c].forEach(p => {
+        const linked = items.filter(i => i.projectId === p.id).sort((a,b)=>(a.order||0)-(b.order||0));
+        const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
+        const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
+        html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem">${p.name}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
+      });
+      html += '</div></div>';
+    });
+  } else {
+    sorted.forEach(p => {
+      const linked = items.filter(i => i.projectId === p.id);
+      const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
+      const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
+      html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem">${p.name}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
+    });
+  }
+  el.innerHTML = html + '</div>';
+  if(settings.collapsed){ Object.keys(settings.collapsed).forEach(k=>{ if(k.startsWith('proj-') && settings.collapsed[k]){ document.querySelectorAll('.sec-h').forEach(el=>{ if(el.textContent.trim()===k.slice(5)){ el.nextElementSibling.style.display='none'; } }); } }); }
+}
+function addProject(){
+  modal(`<h2>New Project</h2><input id="npname" placeholder="Project name" autofocus>
+    <label>Category</label><input id="npcat" list="projcatlist" placeholder="e.g. Art" value="General"><datalist id="projcatlist"></datalist>
+    <button class="btn btn-main" id="npc">Create</button>`);
+  setTimeout(async()=>{
+    const its = await all('items');
+    const cats = [...new Set(its.map(i=>i.cat).filter(Boolean))];
+    const dl = document.getElementById('projcatlist');
+    if(dl) dl.innerHTML = cats.map(c=>`<option value="${c}">`).join('');
+  },50);
+  document.getElementById('npc').onclick = async () => {
+    const name = document.getElementById('npname').value.trim();
+    if (!name) return;
+    const cat = document.getElementById('npcat').value.trim() || 'General';
+    const finalCol = (settings.catColors||{})[cat] || '#6b7280';
+    await add('projects', {name, cat, color:finalCol, created:Date.now(), trackProgress:true});
+    document.getElementById('modal').classList.add('hide');
+    go('projects');
+  };
+}
+async function openProject(id){
+  const ps = await all('projects');
+  const p = ps.find(x => x.id == id);
+  if (!p) return;
+  const items = await all('items');
+  const linked = items.filter(i => i.projectId === id).sort((a,b)=>(a.order??9999)-(b.order??9999));
+  let html = `<h2>${p.name}</h2><p>Category: ${p.cat||'–'} · ${linked.length} tasks</p>`;
+  html += `<details open><summary style="cursor:pointer;font-weight:600;margin:8px 0">View tasks (${linked.length})</summary><div style="max-height:40vh;overflow-y:auto">`;
+  html += linked.map((i,idx) => `<div class="item" style="--c:${i.color};padding:6px 10px;margin:4px 0;display:flex;align-items:center" onclick="openItem(${i.id})"><div class="t" style="font-size:0.9rem;flex:1">${i.title}</div><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},-1)">↑</span><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},1)">↓</span><span style="font-size:1.2rem;font-weight:300;color:#fff;padding:0 8px;cursor:pointer;line-height:1" onclick="event.stopPropagation();toggleProjectTask(${i.id},${id},false)">×</span></div>`).join('') || '<p>No tasks yet</p>';
+  html += '</div></details>';
+  html += `<button class="btn" onclick="manageProjectTasks(${id})">Add / remove tasks</button><button class="btn" onclick="renameProject(${id})">Rename</button><button class="btn" onclick="editProjectCat(${id})">Change category</button>`;
+  html += `<button class="btn" style="background:#c00" onclick="delProject(${id})">Delete project</button>`;
+  modal(html);
+}
+async function moveTaskInProject(tid, pid, dir){
+  const items = await all('items');
+  let linked = items.filter(i=>i.projectId===pid);
+  linked.forEach((it,i)=>{ if(it.order==null) it.order = i; });
+  linked.sort((a,b)=>(a.order||0)-(b.order||0));
+  const idx = linked.findIndex(i=>i.id===tid);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=linked.length) return;
+  const tmp = linked[idx].order;
+  linked[idx].order = linked[newIdx].order;
+  linked[newIdx].order = tmp;
+  await put('items', linked[idx]);
+  await put('items', linked[newIdx]);
+  openProject(pid);
+}
+async function manageProjectTasks(pid){
+  const items = await all('items');
+  const linked = items.filter(i => i.projectId === pid);
+  const unlinked = items.filter(i => !i.projectId);
+  let html = '<h2>Add / remove tasks</h2><input id="managesearch" placeholder="Type to filter…" oninput="filterManageList()" style="margin-bottom:8px"><div id="managelist" style="max-height:50vh;overflow-y:auto">';
+  linked.forEach(i => html += `<label class="bulkrow" data-title="${(i.title||'').toLowerCase()}" style="display:flex;align-items:center;gap:10px;margin:6px 0;padding:6px 8px;background:color-mix(in srgb,var(--accent) 15%,transparent);border-radius:8px"><input type="checkbox" class="bulkitem" value="${i.id}" checked style="width:22px;height:22px;flex:0 0 auto;margin:0"> <span style="flex:1">${i.title}</span></label>`);
+  unlinked.forEach(i => html += `<label class="bulkrow" data-title="${(i.title||'').toLowerCase()}" style="display:flex;align-items:center;gap:10px;margin:6px 0;padding:6px 8px"><input type="checkbox" class="bulkitem" value="${i.id}" style="width:22px;height:22px;flex:0 0 auto;margin:0"> <span style="flex:1">${i.title}</span></label>`);
+  html += '</div><button class="btn btn-main" onclick="applyManageTasks('+pid+')">Apply changes</button>';
+  modal(html);
+}
+function filterManageList(){
+  const q = (document.getElementById('managesearch')?.value||'').toLowerCase();
+  document.querySelectorAll('#managelist .bulkrow').forEach(r => {
+    r.style.display = (r.dataset.title||'').includes(q) ? 'flex' : 'none';
+  });
+}
+async function applyManageTasks(pid){
+  const checks = [...document.querySelectorAll('#managelist .bulkitem')];
+  const items = await all('items');
+  for (const c of checks) {
+    const it = items.find(x => x.id == c.value);
+    if (it) {
+      if (c.checked && it.projectId !== pid) { it.projectId = pid; await put('items', it); }
+      else if (!c.checked && it.projectId === pid) { it.projectId = null; await put('items', it); }
+    }
+  }
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
+async function toggleProjectTask(itemId, pid, add){
+  const items = await all('items');
+  const it = items.find(x => x.id == itemId);
+  if (it) { it.projectId = add ? pid : null; await put('items', it); }
+  openProject(pid);
+}
+function renameProject(id){
+  modal(`<h2>Rename project</h2><input id="rpn" placeholder="New name" autofocus><button class="btn btn-main" onclick="doRenameProject(${id})">Save</button>`);
+}
+async function doRenameProject(id){
+  const name = document.getElementById('rpn').value.trim();
+  if(!name) return;
+  const ps = await all('projects');
+  const p = ps.find(x=>x.id==id);
+  if(p){ p.name = name; await put('projects', p); }
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
+function editProjectCat(id){
+  modal(`<h2>Change category</h2><input id="epcat" placeholder="Category"><button class="btn btn-main" onclick="doEditProjCat(${id})">Save</button>`);
+}
+async function doEditProjCat(id){
+  const cat = document.getElementById('epcat').value.trim();
+  if(!cat) return;
+  const ps = await all('projects');
+  const p = ps.find(x=>x.id==id);
+  if(p){
+    p.cat = cat;
+    p.color = (settings.catColors||{})[cat] || '#6b7280';
+    await put('projects', p);
+  }
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
+async function linkTaskToProject(pid){
+  const items = await all('items');
+  const unlinked = items.filter(i => !i.projectId);
+  let html = '<h2>Add task to project</h2><input id="linksearch" placeholder="Type to filter…" oninput="filterLinkList()" style="margin-bottom:8px"><div id="linklist">';
+  html += unlinked.map(i => `<div class="linkrow" data-title="${(i.title||'').toLowerCase()}" style="display:flex;align-items:center;gap:8px;margin:4px 0"><button class="small btn" onclick="doLink(${i.id},${pid})" style="flex:1;text-align:left">${i.title}</button></div>`).join('') || '<p>No unlinked tasks</p>';
+  html += '</div>';
+  modal(html);
+}
+function filterLinkList(){
+  const q = (document.getElementById('linksearch')?.value||'').toLowerCase();
+  document.querySelectorAll('.linkrow').forEach(r => {
+    r.style.display = (r.dataset.title||'').includes(q) ? 'flex' : 'none';
+  });
+}
+async function doLink(itemId, pid){
+  const items = await all('items');
+  const it = items.find(x => x.id == itemId);
+  if (it) { it.projectId = pid; await put('items', it); }
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
+async function bulkLink(pid){
+  const items = await all('items');
+  const unlinked = items.filter(i => !i.projectId);
+  let html = '<h2>Bulk add to project</h2><input id="bulksearch" placeholder="Type to filter…" oninput="filterBulkList()" style="margin-bottom:8px"><button class="small btn" onclick="document.querySelectorAll(\'.bulkitem\').forEach(c=>c.checked=true)">Select all</button> <button class="small btn" onclick="document.querySelectorAll(\'.bulkitem\').forEach(c=>c.checked=false)">Clear</button><br><div id="bulklist">';
+  unlinked.forEach(i => html += `<label class="bulkrow" data-title="${(i.title||'').toLowerCase()}" style="display:flex;align-items:center;gap:10px;margin:6px 0;padding:4px 0"><input type="checkbox" class="bulkitem" value="${i.id}" style="width:22px;height:22px;flex:0 0 auto"> <span style="flex:1">${i.title}</span></label>`);
+  html += '</div><button class="btn btn-main" id="dobulk">Add selected</button>';
+  modal(html);
+  document.getElementById('dobulk').onclick = async () => {
+    const checks = [...document.querySelectorAll('.bulkitem:checked')];
+    for (const c of checks) {
+      const it = items.find(x => x.id == c.value);
+      if (it) { it.projectId = pid; await put('items', it); }
+    }
+    document.getElementById('modal').classList.add('hide');
+    go('projects');
+  };
+}
+function filterBulkList(){
+  const q = (document.getElementById('bulksearch')?.value||'').toLowerCase();
+  document.querySelectorAll('.bulkrow').forEach(r => {
+    r.style.display = (r.dataset.title||'').includes(q) ? 'flex' : 'none';
+  });
+}
+async function delProject(id){
+  if (!confirm('Delete this project?')) return;
+  await new Promise(r => { const tx = db.transaction('projects','readwrite'); tx.objectStore('projects').delete(id); tx.oncomplete = r; });
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
+async function renderResources(el){
+  const rs = (await all('resources')).sort((a,b)=>(b.lastOpened||0)-(a.lastOpened||0));
+  let html = '<div class="sec"><button class="small btn" onclick="settings.resBoard=!settings.resBoard;saveSet();go(\'resources\')">'+(settings.resBoard?'List':'Board')+'</button> <button class="small btn" onclick="settings.showAddRes=!settings.showAddRes;saveSet();go(\'resources\')">'+(settings.showAddRes?'Cancel':'New resource')+'</button>';
+  if(settings.showAddRes) html += '<div style="margin-top:8px;padding:8px;border:1px solid var(--border);border-radius:10px"><input id="rt" placeholder="Title"><input id="ru" placeholder="URL"><label>Colour</label><input id="rcol" type="color" value="#6b7280"><input id="rsec" placeholder="Section (optional)"><input id="rimg" placeholder="Image URL (optional)"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById(\'rimg\').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="add(\'resources\',{title:document.getElementById(\'rt\').value,url:document.getElementById(\'ru\').value,color:document.getElementById(\'rcol\').value,image:document.getElementById(\'rimg\').value,section:document.getElementById(\'rsec\').value||\'General\',created:Date.now()}).then(()=>{settings.showAddRes=false;saveSet();go(\'resources\');})">Add</button></div>';
+  if (settings.resBoard) {
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:8px">';
+    rs.forEach(r => {
+      const days = r.lastOpened ? Math.floor((Date.now()-r.lastOpened)/86400000) : '–';
+      html += `<div class="item" style="--c:${r.color||'#6b7280'};height:100px;display:flex;align-items:flex-end;${r.image?'background-image:url('+r.image+');background-size:cover':''}" onclick="openResource(${r.id})"><div class="t">${r.title}<br><small>${days}d</small></div></div>`;
+    });
+    html += '</div>';
+  } else {
+    const groups = {};
+    rs.forEach(r => { const s = r.section || 'General'; (groups[s] = groups[s] || []).push(r); });
+    Object.keys(groups).forEach(s => {
+      html += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'res-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+s+'</div><div class="sec-body">';
+      html += groups[s].map(r => {
+        const days = r.lastOpened ? Math.floor((Date.now()-r.lastOpened)/86400000) : '–';
+        return `<div class="item" style="--c:${r.color||'#6b7280'};position:relative"><div class="t" onclick="openResource(${r.id})">${r.title}</div><div class="m">${r.url||''} · ${days}d ago</div><span style="position:absolute;top:8px;right:12px;font-size:0.85rem;opacity:0.8;z-index:5" onclick="event.stopPropagation();event.preventDefault();editResource(${r.id})">edit</span></div>`;
+      }).join('');
+      html += '</div></div>';
+    });
+  }
+  html += '</div>';
+  el.innerHTML = html; if(settings.collapsed){Object.keys(settings.collapsed).forEach(k=>{if(k.startsWith('res-')&&settings.collapsed[k]){document.querySelectorAll('.sec-h').forEach(el=>{if(el.textContent.trim()===k.slice(4))el.nextElementSibling.style.display='none';});}});} 
+}
+async function openResource(id){
+  const rs = await all('resources');
+  const r = rs.find(x=>x.id===id);
+  if(!r) return;
+  r.lastOpened = Date.now();
+  await put('resources', r);
+  if (r.url) { modal('<h2>'+r.title+'</h2><p>'+r.url+'</p><button class="btn btn-main" onclick="const a=document.createElement(\'a\');a.href=\''+r.url.replace(/'/g,"\\'")+'\';a.target=\'_blank\';a.rel=\'noopener\';a.click();document.getElementById(\'modal\').classList.add(\'hide\')">Open in browser</button>'); return; }
+  else editResource(id);
+  go('resources');
+}
+async function editResource(id){const rs=await all('resources');const r=rs.find(x=>x.id==id);if(!r)return;modal(`<h2>Edit Resource</h2><input id="ert" value="${(r.title||'').replace(/"/g,'"')}"><input id="eru" value="${r.url||''}" placeholder="URL"><label>Colour</label><input id="ercol" type="color" value="${r.color||'#6b7280'}"><input id="ersec" value="${r.section||'General'}" placeholder="Section"><input id="erimg" value="${r.image||''}" placeholder="Image URL"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById('erimg').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="saveResource(${id})">Save</button><button class="btn" style="background:#ef4444" onclick="deleteResource(${id})">Delete</button>`);}
+async function saveResource(id){ const rs=await all('resources'); const r=rs.find(x=>x.id==id); if(!r) return; r.title=document.getElementById('ert').value; r.url=document.getElementById('eru').value; r.color=document.getElementById('ercol').value; r.image=document.getElementById('erimg').value; r.section=document.getElementById('ersec').value||'General'; await put('resources',r); document.getElementById('modal').classList.add('hide'); go('resources'); }
+async function deleteResource(id){ const tx=db.transaction('resources','readwrite'); const req=tx.objectStore('resources').delete(Number(id)); req.onsuccess=()=>{ document.getElementById('modal').classList.add('hide'); go('resources'); }; req.onerror=()=>alert('Could not delete'); }
+
+async function showHabitLog(id){ const items=await all("items"); const it=items.find(x=>x.id==id); if(!it)return; const hist=Object.entries(it.completions||{}).sort((a,b)=>b[0].localeCompare(a[0])).map(([d,s])=>'<div>'+d+' - '+s+'</div>').join("") || "<p>No history yet</p>"; modal("<h2>"+it.title+"</h2><p>Category: "+(it.cat||"-")+"</p><div style=\"max-height:300px;overflow:auto\">"+hist+"</div>"); }
+async function renderInsights(el){
+  const items = await all('items');
+  const range = settings.insRange || 'all';
+  const now = new Date();
+  let cutoff = 0;
+  if(range==='week') cutoff = Date.now() - 7*86400000;
+  if(range==='month') cutoff = Date.now() - 30*86400000; if(range==='day') cutoff = Date.now() - 86400000;
+
+  const doneItems = items.filter(i => {
+    if(i.done) return true;
+    if(i.completions && Object.values(i.completions).includes('done')){
+      if(range==='all') return true;
+      return Object.entries(i.completions).some(([d,s]) => s==='done' && new Date(d).getTime() >= cutoff);
+    }
+    return false;
+  });
+
+  const byCat = {};
+  doneItems.forEach(i=>{const c=i.cat||'None'; byCat[c]=(byCat[c]||0)+1;});
+  const cats = Object.keys(byCat);
+  const total = doneItems.length || 1;
+  let pie = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0">';
+  cats.forEach(c=>{
+    const pct = Math.round((byCat[c]/total)*100);
+    const col = (settings.catColors||{})[c] || '#666';
+    pie += '<div style="background:'+col+';padding:10px;border-radius:8px;min-width:70px;color:#fff;text-align:center"><div style="font-size:1.1rem;font-weight:600">'+pct+'%</div><div style="font-size:0.75rem">'+c+'</div></div>';
+  });
+  pie += '</div>';
+
+  const habits = items.filter(i=>i.trackHabit);
+  const groups = {};
+  habits.forEach(h=>{
+    const comps = Object.entries(h.completions||{}).filter(([d,s])=>s==='done' && (range==='all' || new Date(d).getTime()>=cutoff)).length;
+    let expected = 1;
+    if(h.recurrence==='daily') expected = range==='day'?1:range==='week'?7:range==='month'?30:30;
+    else if(h.recurrence==='weekly') expected = range==='week'?1:range==='month'?4:4;
+    else if(h.recurrence==='monthly') expected = range==='month'?1:1;
+    else expected = range==='day'?1:range==='week'?1:range==='month'?1:1;
+    const pct = Math.min(100, Math.round((comps / expected) * 100));
+    const last = h.last ? Math.round((Date.now()-h.last)/86400000) : '–';
+    const c = h.cat || 'None';
+    if(!groups[c]) groups[c] = [];
+    groups[c].push({html:'<div style="display:grid;grid-template-columns:1fr 52px 72px;gap:8px;align-items:center;padding:4px 0;cursor:pointer" onclick="showHabitLog('+h.id+')"><span>'+h.title+'</span><span style="text-align:right">'+pct+'%</span><span style="text-align:right;color:var(--text-sec)">'+last+'d</span></div>', pct, last: last===999?999:last});
+  });
+  let habitHtml = '<div style="display:grid;grid-template-columns:1fr 52px 72px;gap:8px;padding:4px 0;font-size:0.8rem;color:var(--text-sec);border-bottom:1px solid var(--border);margin-bottom:4px"><span>Habit</span><span style="text-align:right;cursor:pointer" onclick="settings.habSort=\'pct\';saveSet();go(\'ins\')">%</span><span style="text-align:right;cursor:pointer" onclick="settings.habSort=\'days\';saveSet();go(\'ins\')">Days</span></div>';
+  Object.keys(groups).forEach(c=>{
+    const sorted = [...groups[c]].sort((a,b)=> settings.habSort==='days' ? (Number(b.last)||0) - (Number(a.last)||0) : (Number(a.pct)||0) - (Number(b.pct)||0));
+    habitHtml += '<div class="sec"><div class="sec-h" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display===\'none\'?\'block\':\'none\'" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+c+'</div><div class="sec-body" style="padding-left:8px">'+sorted.map(x=>x.html).join('')+'</div></div>';
+  });
+
+  const top = cats.sort((a,b)=>byCat[b]-byCat[a])[0];
+  const working = top ? top+' is your most completed category' + (range==='all'?' of all time':range==='day'?' today':' this '+range) : 'No completions yet';
+
+  el.innerHTML = '<h2>Insights</h2>' +
+    '<div style="margin:8px 0"><button class="small btn'+(range==='all'?' active':'')+'" onclick="settings.insRange=\'all\';saveSet();go(\'ins\')">All</button> <button class="small btn'+(range==='week'?' active':'')+'" onclick="settings.insRange=\'week\';saveSet();go(\'ins\')">This week</button> <button class="small btn'+(range==='month'?' active':'')+'" onclick="settings.insRange=\'month\';saveSet();go(\'ins\')">This month</button> <button class="small btn'+(range==='day'?' active':'')+'" onclick="settings.insRange=\'day\';saveSet();go(\'ins\')">Today</button></div>' +
+    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">Completed by category</div><div class="sec-body">'+(cats.length?pie:'<p>Nothing completed yet</p>')+'</div></div>' +
+    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">Habit consistency</div><div class="sec-body">'+(habitHtml||'<p>No habits</p>')+'</div></div>' +
+    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">What’s working</div><div class="sec-body"><p>'+working+'</p></div></div>';
+}
+
+async function renderReview(el){
+  const items = await all('items');
+  const todayKey = new Date().toISOString().slice(0,10); const done = items.filter(i => i.done || (i.completions && i.completions[todayKey] === "done")).length;
+  const total = items.length;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  const habits = items.filter(i => i.trackHabit);
+  const cats = {};
+  if(settings.secSort==='cat') rest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') rest.sort((a,b)=>a.title.localeCompare(b.title)); var sortedRest = rest.slice(); if(settings.secSort==='cat') sortedRest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') sortedRest.sort((a,b)=>a.title.localeCompare(b.title)); sortedRest.forEach(i => { const c = i.cat || 'Uncategorised'; cats[c] = (cats[c] || 0) + 1; });
+  let catHtml = Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,n]) => {
+  const w = Math.round(n / total * 100);
+  return `<div style="margin:6px 0"><div>${c} (${n})</div><div style="height:8px;background:var(--border);border-radius:4px"><div style="width:${w}%;height:100%;background:var(--accent);border-radius:4px"></div></div></div>`;
+}).join('');
+  el.innerHTML = `<div class="sec">
+    <h2>Insights</h2>
+    <p>Completed: ${done} / ${total} (${pct}%)</p>
+    <p>Tracked habits: ${habits.length}</p>
+    <div class="block"><div class="block-h">Category balance</div><div style="padding:8px 14px">${catHtml || 'None'}</div></div>
+    <button class="btn" onclick="habitHistory()">View full habit history</button>
+  </div>`;
+}
+async function habitHistory(){
+  const items = (await all('items')).filter(i => i.trackHabit);
+  let html = '<h2>Habit History</h2>';
+  items.forEach(it => {
+    const comps = it.completions || {};
+    const keys = Object.keys(comps).sort().reverse().slice(0, 30);
+    html += `<div class="block"><div class="block-h">${it.title}</div><div style="padding:8px 14px">${keys.map(k => k + ': ' + comps[k]).join('<br>') || 'No history yet'}</div></div>`;
+  });
+  modal(html || '<p>No habits</p>');
+}
+
+async function renameCat(old, newName){ const n=(newName||'').trim(); if(!n||n===old) return; const items=await all("items"); for(const i of items){ if(i.cat===old){ i.cat=n; await put("items",i); } } settings.catColors=settings.catColors||{}; if(settings.catColors[old]){ settings.catColors[n]=settings.catColors[old]; delete settings.catColors[old]; saveSet(); } manageCategories(); }
+async function delCat(c){ if(!confirm("Remove category from all tasks?")) return; const items=await all("items"); for(const i of items){ if(i.cat===c){ i.cat="General"; await put("items",i); } } manageCategories(); }
+async function manageCategories(){
+  const items = await all('items');
+  const cats = [...new Set(items.map(i => i.cat).filter(Boolean))];
+  let html = '<h2>Categories</h2><p>Currently used:</p>' + (cats.map(c => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap"><input type="color" value="${(settings.catColors||{})[c]||'#888888'}" style="width:40px;height:28px;padding:0;border:none" onchange="settings.catColors=settings.catColors||{};settings.catColors['${c}']=this.value;saveSet()"><input id="rn-${c.replace(/[^a-z0-9]/gi,'_')}" value="${c}" style="flex:1;min-width:100px"><button class="small btn" onclick="renameCat('${c}',document.getElementById('rn-${c.replace(/[^a-z0-9]/gi,'_')}').value)">Save</button><button class="small btn" onclick="delCat('${c}')">Delete</button></div>`).join('') || '<p>None yet</p>') +
+    '<label>Add new category</label><input id="newcat" placeholder="e.g. Creativity"><button class="btn btn-main" id="addcat">Add category</button>';
+  modal(html);
+  document.getElementById('addcat').onclick = async () => {
+    const name = document.getElementById('newcat').value.trim();
+    if (!name) return;
+    await add('items', {title: '(category placeholder)', type:'task', cat:name, done:true, color:'#6b7280', created:Date.now(), trackHabit:false});
+    alert('Category "' + name + '" added. You can now use it on tasks.');
+    manageCategories();
+  };
+}
+
+function renderMore(el){el.innerHTML=`<div class="sec" style="padding-top:12vh;display:flex;flex-direction:column;align-items:center">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:360px">
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('review')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>Insights</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('routines')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Routines</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('projects')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Projects</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="manageCategories()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1"/></svg>Categories</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('resources')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>Resources</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('notes')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>Notes</button>
+</div>
+<button class="btn" style="width:100%;max-width:360px;margin-top:12px;height:72px;border-radius:16px;font-size:1.05rem;padding:12px" onclick="showSet()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
+</div>`;}
+
+async function showCountdowns(){const cs=await all('countdowns');modal(`<h2>Countdowns</h2>${cs.map(c=>c.name+' — '+c.date).join('<br>')||'None'}<input id="cn" placeholder="Name"><input id="cd" type="date"><button class="btn" onclick="add('countdowns',{name:document.getElementById('cn').value,date:document.getElementById('cd').value}).then(showCountdowns)">Add</button>`);}
+function showGuide(){
+  modal(`<h2>Guide</h2>
+    <p><strong>Today</strong> – Quick view of due, upcoming, and routines. Tap routine lines to strike through.</p>
+    <p><strong>Tasks / Ideas</strong> – Full lists with grouping, sorting, multi-select, board view, and bulk actions.</p>
+    <p><strong>Habits</strong> – Track recurring items. Tap circles to mark done or skip. Streaks respect frequency.</p>
+    <p><strong>Calendar</strong> – Month/week/day views with category and frequency filters.</p>
+    <p><strong>Projects</strong> – Group tasks. Use ↑/↓ to reorder tasks inside a project. Colour comes from category.</p>
+    <p><strong>Notes</strong> – Freeform notes with colour. Quick-add from the Notes page.</p>
+    <p><strong>Resources</strong> – Links and inspiration. Toggle add form and board/list view.</p>
+    <p><strong>Routines</strong> – Collapsible daily lists. Show on Today and tap lines to mark done.</p>
+    <p><strong>Insights</strong> – Completion stats and habit consistency. Tap % or Days to sort.</p>
+    <p><strong>Data</strong> – Export / Import includes tasks, projects, resources, notes, routines, and settings.</p>
+    <button class="btn" onclick="document.getElementById('modal').classList.add('hide')">Close</button>`);
+}
+function showSet(){
+  modal(`<h2>Settings</h2>
+    <select id="font" onchange="settings.font=this.value;saveSet();applyFont()">
+      <option value="Geneva,sans-serif">Geneva</option>
+      <option value="Helvetica,Arial,sans-serif">Helvetica</option>
+      <option value="Arial,sans-serif">Arial</option>
+      <option value="Verdana,sans-serif">Verdana</option>
+      <option value="Trebuchet MS,sans-serif">Trebuchet MS</option>
+      <option value="Tahoma,sans-serif">Tahoma</option>
+      <option value="Segoe UI,sans-serif">Segoe UI</option>
+      <option value="Palatino,serif">Palatino</option>
+      <option value="Consolas,monospace">Consolas</option>
+      <option value="Monaco,monospace">Monaco</option>
+      <option value="Menlo,monospace">Menlo</option>
+    </select>
+    <select id="th"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+    <select id="scheme" onchange="settings.scheme=this.value;saveSet();applyScheme()">
+      <option value="default" ${settings.scheme==='default'||!settings.scheme?'selected':''}>Default</option>
+      <option value="warm" ${settings.scheme==='warm'?'selected':''}>Warm grey</option>
+      <option value="cool" ${settings.scheme==='cool'?'selected':''}>Cool grey</option>
+    </select>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;margin:8px 0">
+      <label style="text-align:center"><input type="checkbox" id="g" ${settings.gentle?'checked':''}><br>Waiting</label>
+      <label style="text-align:center"><input type="checkbox" id="showr" ${settings.showRoutines!==false?'checked':''}><br>Routines</label>
+    </div>
+    <div style="display:flex;gap:8px;margin:8px 0">
+      <button class="btn" style="flex:1" onclick="exportData()">Export</button>
+      <button class="btn" style="flex:1" onclick="importData()">Import</button>
+    </div>
+    <button class="btn btn-main" onclick="settings.theme=document.getElementById('th').value;settings.gentle=document.getElementById('g').checked;settings.focus=document.getElementById('focus').checked;settings.showRoutines=document.getElementById('showr').checked;saveSet();applyTheme();document.getElementById('modal').classList.add('hide')">Save</button>
+    <button class="btn" style="margin-top:8px" onclick="showGuide()">Guide</button>`);
+  document.getElementById('th').value=settings.theme;
+  const fs=document.getElementById('font'); if(fs) fs.value=settings.font||'Geneva,sans-serif';
+}
+async function importData(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const text = await file.text();
+    try {
+      const data = JSON.parse(text);
+      if (data.items) for (const it of data.items) await put('items', it);
+      if (data.projects) for (const p of data.projects) await put('projects', p);
+      if (data.resources) for (const r of data.resources) await put('resources', r);
+      if (data.notes) for (const n of data.notes) await put('notes', n);
+      if (data.countdowns) for (const c of data.countdowns) await put('countdowns', c);
+      if (data.routines) routines = data.routines;
+      if (data.settings) { settings = data.settings; saveSet(); }
+      alert('Import complete');
+      go(page);
+    } catch (err) { alert('Import failed'); }
+  };
+  input.click();
+}
+async function exportData(){
+  const data = {
+    items: await all('items'),
+    projects: await all('projects'),
+    resources: await all('resources'),
+    notes: await all('notes'),
+    countdowns: await all('countdowns'),
+    settings: settings,
+    routines: routines
+  };
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'organiser-backup.json';
+  a.click();
+}
+async function seed(){
+  settings.catColors = {
+    'Admin':'#FF7348',
+    'Art':'#8900C6',
+    'Baby':'#76BB40',
+    'Family/Friends':'#D12836',
+    'Health':'#008E2F',
+    'Home':'#FF9E00',
+    'Money':'#3A87FE',
+    'S':'#FC599E',
+    'Studies':'#0070FB',
+    'Work':'#C80055',
+    '[Misc]':'#6b7280'
+  };
+  saveSet();
+  const mural = await add('projects',{name:'Mural',cat:'Art',color:'#8900C6',created:Date.now(),trackProgress:true});
+  const today = new Date().toISOString().slice(0,10);
+  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  await add('items',{title:'Doodle',type:'task',due:today,recurrence:'daily',cat:'Art',projectId:mural,trackHabit:true,color:'#8900C6',done:false,created:Date.now(),completions:{}});
+  await add('items',{title:'Wash brushes',type:'task',due:today,recurrence:'weekly',cat:'Art',projectId:mural,trackHabit:true,color:'#8900C6',done:false,created:Date.now(),completions:{}});
+  await add('items',{title:'Paint flowers',type:'task',due:tomorrow,cat:'Art',projectId:mural,trackHabit:false,color:'#8900C6',done:false,created:Date.now(),reminder:true,rem1:'1d',completions:{}});
+  await add('notes',{title:'Sample note',body:'This is a sample note for testing.',color:'#4A9C3A',created:Date.now(),updated:Date.now()});
+  await add('notes',{title:'Another note',body:'A second sample in a different colour.',color:'#B18CFE',created:Date.now(),updated:Date.now()});
+}
+init();
+</script>
+</body>
+</html>
