@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.1</title>
+<title>Organiser v27.48</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -47,6 +47,7 @@ input[type=date], input[type=color] { height:44px; }
 .btn { background:#4a4a4e; color:#fff; border:none; font-weight:600; }
 .btn-main { background:#76BB40; color:#fff; }
 .small.btn { background:#4a4a4e; }
+.small.btn.btn-main { background:#76BB40; }
 .small { font-size:0.75rem; padding:5px 8px; width:auto; display:inline-block; }
 #ver { position:fixed; bottom:8px; right:10px; font-size:11px; opacity:0.6; background:var(--surface); padding:2px 6px; border-radius:4px; z-index:10; }
 .tag { display:inline-block; background:var(--border); color:var(--text); font-size:0.7rem; padding:2px 6px; border-radius:8px; margin-right:4px; }
@@ -64,21 +65,21 @@ input[type=date], input[type=color] { height:44px; }
     <div class="header-actions">
       <button id="search" title="Search"></button>
       <button id="lookup" title="Look up"></button>
-      <button id="add" style="font-size:1.8rem;font-weight:300">+</button>
+      <button id="add" style="font-size:1.9rem;font-weight:300;line-height:1;padding:0;display:flex;align-items:center;justify-content:center;margin-top:-3px">+</button>
     </div>
   </header>
   <main id="main"></main>
   <nav>
-    <button data-p="today" class="active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
+    <button data-p="today" class="active" title="My Day"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
     <button data-p="tasks" title="Tasks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
-    <button data-p="ideas" title="Ideas"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg></button>
+    <button data-p="notes" title="Notes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
     <button data-p="habits" title="Habits"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
     <button data-p="cal" title="Calendar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
     <button data-p="inbox" title="Inbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></button>
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.33</div>
+<div id="ver">v27.48</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -88,17 +89,12 @@ const DB='org-v4';
 let db, page='today', settings={theme:'auto',gentle:true,search:'https://www.google.com/search?q=', sort:'due'};
 let selected = new Set();
 let selectMode = false;
-let routines = [
-  {id:1, name:'Morning', items:['Teeth → Skincare → Makeup','Baby feed + put down','Get dressed','Hair'], showOnToday:true},
-  {id:2, name:'School run', items:['Wake S','S → teeth, toilet, breakfast…','Leave 8.30'], showOnToday:true},
-  {id:3, name:'Daytime', items:['Work / Admin / House'], showOnToday:true},
-  {id:4, name:'Evening', items:['Dinner','Kids bedtime','Wind down'], showOnToday:true}
-];
+let routines = [];
 
 const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,2);r.onerror=()=>rej(r.error);r.onsuccess=()=>res(r.result);r.onupgradeneeded=e=>{const d=e.target.result;['items','projects','resources','settings','countdowns','notes'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:'id',autoIncrement:true});});};});
 async function init(){db=await openDB();await loadSet();applyTheme();document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.p);});document.getElementById('add').onclick=quickAdd;document.getElementById('search').onclick=inSearch;document.getElementById('lookup').onclick=()=>{const q=prompt('Look up:');if(q){const a=document.createElement('a');a.href=settings.search+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.click();}};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.add('hide');if((await all('items')).length===0)await seed();go('today');}
-async function loadSet(){const s=await all('settings');if(s[0])settings={...settings,...s[0]};}
-function saveSet(){db.transaction('settings','readwrite').objectStore('settings').put({id:1,...settings});}
+async function loadSet(){const s=await all('settings');if(s[0]){settings={...settings,...s[0]}; if(Array.isArray(s[0].routines)) routines = s[0].routines; }}
+function saveSet(){settings.routines = routines; db.transaction('settings','readwrite').objectStore('settings').put({id:1,...settings});}
 function applyScheme(){
   const s = settings.scheme || 'default';
   const root = document.documentElement;
@@ -135,31 +131,31 @@ async function quickAdd(){const items=await all('items');const ps=await all('pro
     <input id="t" placeholder="Title" autofocus>
     <label>Due date</label><input id="d" type="date">
     <label>Recurrence</label><select id="rec" onchange="showRecExtra();document.getElementById('thabit').checked=!!this.value;document.getElementById('showcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="custom">X times every X period</option></select><div id="recextra"></div>
-    <label><input type="checkbox" id="remind"> Reminder</label>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
-      <label><input type="checkbox" id="thabit"> Habit</label>
+      <label><input type="checkbox" id="showtoday" checked> My Day</label>
+      <label><input type="checkbox" id="remind" onchange="var o=document.getElementById('qremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label>
       <label><input type="checkbox" id="showcal" checked> Calendar</label>
-      <label><input type="checkbox" id="showtoday" checked> Today</label>
+      <label><input type="checkbox" id="thabit"> Habit</label>
     </div>
+    <div id="qremopts" style="display:none"><select id="qrem1"><option value="">None</option><option value="0d">On the day</option><option value="1d">1 day before</option><option value="2d">2 days before</option><option value="7d">1 week before</option><option value="14d">2 weeks before</option><option value="28d">4 weeks before</option></select><select id="qrem2"><option value="">None</option><option value="0d">On the day</option><option value="1d">1 day before</option><option value="2d">2 days before</option><option value="7d">1 week before</option><option value="14d">2 weeks before</option><option value="28d">4 weeks before</option></select></div>
     <details style="margin:12px 0"><summary style="padding:8px 0">Details</summary>
-    <label>Category</label><input id="c" list="catlist" placeholder="Category" value="General"><datalist id="catlist"></datalist>
+    <label>Category</label><input id="c" list="catlist" placeholder="Category" value="[Misc]"><datalist id="catlist"></datalist>
     <label>Project</label><input id="proj" list="projlist" placeholder="Project"><datalist id="projlist"></datalist>
     <label>Tags</label><input id="tags" placeholder="comma separated">
-    <label>Depends on</label><input id="dep" placeholder="Type task name..." oninput="suggestDepQuick(this.value)"><div id="depsugq" class="suggest"></div>
     <label>Type</label><select id="ty"><option value="task" ${defType==='task'?'selected':''}>Task</option><option value="idea" ${defType==='idea'?'selected':''}>Idea</option></select>
     <label>Image URL</label><input id="img" placeholder="optional">
     <label>Notes</label><textarea id="notes"></textarea>
     <label>Colour</label><input id="col" type="color" value="#6b7280">
     </details>
     <button class="btn btn-main" id="s">Add</button>`);
-  document.getElementById('s').onclick=async()=>{const title=document.getElementById('t').value.trim();if(!title)return;const tags=(document.getElementById('tags').value||'').split(',').map(t=>t.trim()).filter(Boolean);const projName=document.getElementById('proj').value.trim();let ps=await all('projects');let proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());if(projName&&!proj){await add('projects',{name:projName,created:Date.now(),trackProgress:true});ps=await all('projects');proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());}const depName=document.getElementById('dep')?.value.trim();let dependsOn=null;if(depName){const items=await all('items');const dep=items.find(i=>i.title.toLowerCase()===depName.toLowerCase());if(dep)dependsOn=dep.id;}await add('items',{title,type:document.getElementById('ty').value,due:document.getElementById('d').value||null,recurrence:document.getElementById('rec').value||null,done:false,color:(settings.catColors||{})[document.getElementById('c').value]||document.getElementById('col').value,cat:document.getElementById('c').value||'General',tags,projectId:proj?proj.id:null,created:Date.now(),notes:document.getElementById('notes')?.value||'',image:document.getElementById('img')?.value||'',subtasks:[],dependsOn,trackHabit:document.getElementById('rec').value ? true : document.getElementById('thabit').checked,showInCal:document.getElementById('showcal').checked,showInToday:document.getElementById('showtoday').checked,reminder:document.getElementById('remind').checked,completions:{}});document.getElementById('modal').classList.add('hide');go(page);};
+  document.getElementById('s').onclick=async()=>{const title=document.getElementById('t').value.trim();if(!title)return;const tags=(document.getElementById('tags').value||'').split(',').map(t=>t.trim()).filter(Boolean);const projName=document.getElementById('proj').value.trim();let ps=await all('projects');let proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());if(projName&&!proj){await add('projects',{name:projName,created:Date.now(),trackProgress:true});ps=await all('projects');proj=ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());}await add('items',{title,type:document.getElementById('ty').value,due:document.getElementById('d').value||null,recurrence:document.getElementById('rec').value||null,done:false,color:(settings.catColors||{})[document.getElementById('c').value]||document.getElementById('col').value,cat:document.getElementById('c').value||'[Misc]',tags,projectId:proj?proj.id:null,created:Date.now(),notes:document.getElementById('notes')?.value||'',image:document.getElementById('img')?.value||'',subtasks:[],trackHabit:document.getElementById('rec').value ? true : document.getElementById('thabit').checked,showInCal:document.getElementById('showcal').checked,showInToday:document.getElementById('showtoday').checked,reminder:document.getElementById('remind').checked,completions:{}});document.getElementById('modal').classList.add('hide');go(page);};
 }
 
 function inSearch(){modal(`<h2>Search</h2><input id="q" placeholder="Search..." autofocus><div id="res"></div>`);document.getElementById('q').oninput=async e=>{const q=e.target.value.toLowerCase();const items=await all('items');document.getElementById('res').innerHTML=items.filter(i=>i.title.toLowerCase().includes(q)).map(i=>`<div class="item" style="--c:${i.color}"><div class="t">${i.title}</div></div>`).join('')||'No matches';};}
 
 async function go(p){
   page=p; if(!selectMode)selected.clear();
-  const titles={today:'Today',tasks:'Tasks',ideas:'Ideas',habits:'Habits',cal:'Calendar',more:'More',inbox:'Inbox',projects:'Projects',resources:'Resources',review:'Insights',ins:'Insights',routines:'Routines',notes:'Notes'};
+  const titles={today:'My Day',tasks:'Tasks',ideas:'Ideas',habits:'Habits',cal:'Calendar',more:'More',inbox:'Inbox',projects:'Projects',resources:'Resources',review:'Insights',ins:'Insights',routines:'Routines',notes:'Notes'};
   const svgs={
     tasks:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>',
     ideas:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg>',
@@ -175,7 +171,7 @@ async function go(p){
     const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const dateStr = `(${days[d.getDay()]} ${d.getDate()}${['st','nd','rd'][((d.getDate()+90)%100-10)%10-1]||'th'} ${months[d.getMonth()]} ${d.getFullYear()})`;
-    titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>Today <span style="font-size:0.75rem;font-weight:400;opacity:0.8">${dateStr}</span>`;
+    titleEl.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>My Day <span style="font-size:0.75rem;font-weight:400;opacity:0.8">${dateStr}</span>`;
   } else {
     titleEl.innerHTML = (svgs[p] ? `<span style="margin-right:6px;vertical-align:middle">${svgs[p]}</span>` : '') + (titles[p]||p);
   }
@@ -217,10 +213,35 @@ function toggleRoutineLine(rid, idx){
 function toggleSec(id){const el=document.getElementById(id);if(el){el.classList.toggle('collapsed');settings.collapsed=settings.collapsed||{};settings.collapsed[id]=el.classList.contains('collapsed');saveSet();const arrow=document.getElementById('arrow'+id.replace('rb',''));if(arrow)arrow.textContent=el.classList.contains('collapsed')?'+':'−';}}
 
 async function randomToday(){ const items = await all('items'); const open = items.filter(i=>!i.done); if(open.length) openItem(open[Math.floor(Math.random()*open.length)].id); }
-async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); h+='<div onclick="openItem('+i.id+')">'+i.title+' — due '+i.due+' (in '+d+' days)</div>';}); h+='</div>'; } const upR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return d>=0&&d<=30;}).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Reminders</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+d+'d</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Up next</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600" onclick="toggleSec('rb${b.id}')"><span>${b.name}</span><span id="arrow${b.id}" style="font-size:1rem;font-weight:400">−</span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>`<div style="padding:2px 0;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x}</div>`).join('')}</div></div>`;});h+='</div></div>';}el.innerHTML=h;bind();Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c){const e=document.getElementById(id);if(e)e.classList.add('collapsed');}});}
+
+function chooseMyDayNotes(){
+  all('notes').then(notes=>{
+    settings.pinnedNotes = settings.pinnedNotes || [];
+    let html = '<h2>Pin Notes</h2><p style="font-size:0.85rem;color:var(--text-sec);margin-bottom:12px">Select up to 4 notes to show (or none for most recent).</p><div style="max-height:50vh;overflow-y:auto">';
+    notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
+      const checked = settings.pinnedNotes.includes(n.id) ? 'checked' : '';
+      html += `<label style="display:flex;align-items:center;gap:12px;margin:8px 0;padding:6px 0"><input type="checkbox" style="width:22px;height:22px;flex:0 0 auto" ${checked} onchange="togglePinNote(${n.id},this.checked)"> <span style="background:${n.color||'#6b7280'};color:#fff;padding:4px 10px;border-radius:6px;font-size:0.9rem;flex:1">${n.title||'Untitled'}</span></label>`;
+    });
+    html += '</div><button class="btn btn-main" style="margin-top:12px" onclick="document.getElementById(\'modal\').classList.add(\'hide\');go(\'today\')">Done</button>';
+    modal(html);
+  });
+}
+function togglePinNote(id, on){
+  settings.pinnedNotes = settings.pinnedNotes || [];
+  if(on && !settings.pinnedNotes.includes(id) && settings.pinnedNotes.length<4) settings.pinnedNotes.push(id);
+  else settings.pinnedNotes = settings.pinnedNotes.filter(x=>x!==id);
+  saveSet();
+}
+async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — due '+i.due+' (in '+label+')</div>';}); h+='</div>'; } const upR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return d>=0&&d<=30;}).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Key Dates</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+label+'</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Today</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600" onclick="toggleSec('rb${b.id}')"><span>${b.name}</span><span id="arrow${b.id}" style="font-size:1rem;font-weight:400">${(settings.collapsed||{})['rb'+b.id]?'+':'−'}</span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>`<div style="padding:2px 0;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x}</div>`).join('')}</div></div>`;});h+='</div></div>';const notes = await all('notes'); 
+const pinned = settings.pinnedNotes || [];
+const displayNotes = pinned.length ? notes.filter(n=>pinned.includes(n.id)).slice(0,4) : notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).slice(0,4);
+if(displayNotes.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'notestd\')" style="display:flex;justify-content:space-between;align-items:center">Notes <span onclick="event.stopPropagation();chooseMyDayNotes()" style="cursor:pointer;padding:4px" title="Pin notes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 11V7a3 3 0 016 0v4M5 11h14v4H5z"/></svg></span></h2><div id="notestd" class="sec-body" style="display:flex;gap:6px">';
+displayNotes.forEach(n=>{ h+='<div class="item" style="--c:'+(n.color||'#6b7280')+';flex:1;min-width:0;height:72px;padding:6px;cursor:pointer;font-size:0.75rem;display:flex;align-items:flex-end" onclick="openNote('+n.id+')"><div class="t" style="font-size:0.75rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(n.title||'Untitled')+'</div></div>'; });
+h+='</div></div>'; }
+}el.innerHTML=h;bind();Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c){const e=document.getElementById(id);if(e)e.classList.add('collapsed');}});}
 
 async function renderHabits(el){
-  const items = (await all('items')).filter(i => i.trackHabit);
+  const items = (await all('items')).filter(i => i.trackHabit && !i.title.includes('category placeholder'));
   if (!items.length) { el.innerHTML = '<p style="color:var(--text-sec);padding:8px 0">Add a habit</p>'; return; }
   const today = new Date();
   const groups = {};
@@ -375,8 +396,8 @@ async function renderNotes(el){
     });
     html += '</div>';
   } else {
-    notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
-      html += `<div class="item" style="--c:${n.color||'#6b7280'}" onclick="openNote(${n.id})"><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div>`;
+    notes.sort((a,b)=>(a.order||0)-(b.order||0) || (b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openNote(${n.id})"><div><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div><div style="display:flex;gap:4px"><button class="small btn" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</button><button class="small btn" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</button></div></div>`;
     });
   }
   el.innerHTML = html;
@@ -399,41 +420,57 @@ async function openNote(id){
     </div>
   </div>`);
 }
-function autoSaveNote(id){
-  const title = document.getElementById('nt')?.value || '';
-  const body = document.getElementById('nb')?.value || '';
-  const color = document.getElementById('nc')?.value || '#6b7280';
-  put('notes', {id, title, body, color, updated: Date.now()});
+async function moveNote(id, dir){
+  let notes = await all('notes');
+  notes = notes.map((n,i)=>({...n, order: n.order==null ? i : n.order}));
+  const sorted = notes.sort((a,b)=>a.order-b.order);
+  const idx = sorted.findIndex(n=>n.id===id);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=sorted.length) return;
+  const a = {...sorted[idx]}, b = {...sorted[newIdx]};
+  const tmp = a.order;
+  a.order = b.order;
+  b.order = tmp;
+  await put('notes', a);
+  await put('notes', b);
+  go('notes');
 }
 function confirmDeleteNote(id){
   modal('<h2>Delete note?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="const tx=db.transaction(\'notes\',\'readwrite\');tx.objectStore(\'notes\').delete('+id+');tx.oncomplete=()=>{document.getElementById(\'modal\').classList.add(\'hide\');go(\'notes\');}">Delete</button><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'hide\')">Cancel</button>');
 }
 async function renderRoutinesPage(el){
-  let h = `<div class="sec"><button class="btn" onclick="addNewRoutine()">+ New routine</button>`;
+  let h = `<div class="sec">`;
   routines.forEach((b,idx)=>{
-    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">−</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>'• '+x).join('<br>')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">Today</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
+    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">${(settings.collapsed||{})['rp'+b.id]?'+':'−'}</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>'• '+x).join('<br>')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">Today</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
   });
-  el.innerHTML = h + '</div>';
+  el.innerHTML = h + '</div><button class="btn btn-main" onclick="addNewRoutine()">+ New routine</button>';
   Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c && id.startsWith('rp')){const e=document.getElementById(id);if(e)e.classList.add('collapsed');const arrow=document.getElementById('arrow'+id);if(arrow)arrow.textContent='+';}});
 }
 
-function moveRoutine(idx, dir){
+function moveInArray(arr, idx, dir){
   const newIdx = idx + dir;
-  if(newIdx < 0 || newIdx >= routines.length) return;
-  const tmp = routines[idx];
-  routines[idx] = routines[newIdx];
-  routines[newIdx] = tmp;
+  if(newIdx < 0 || newIdx >= arr.length) return arr;
+  const copy = arr.slice();
+  const tmp = copy[idx];
+  copy[idx] = copy[newIdx];
+  copy[newIdx] = tmp;
+  return copy;
+}
+function moveRoutine(idx, dir){
+  routines = moveInArray(routines, idx, dir);
+  saveSet();
   go('routines');
 }
 function confirmDeleteRoutine(id){
-  modal('<h2>Delete routine?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="routines=routines.filter(x=>x.id!=='+id+');document.getElementById(\'modal\').classList.add(\'hide\');go(\'routines\')">Delete</button><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'hide\')">Cancel</button>');
+  modal('<h2>Delete routine?</h2><p>This cannot be undone.</p><button class="btn" style="background:#c00" onclick="routines=routines.filter(x=>x.id!=='+id+');saveSet();document.getElementById(\'modal\').classList.add(\'hide\');go(\'routines\')">Delete</button><button class="btn" onclick="document.getElementById(\'modal\').classList.add(\'hide\')">Cancel</button>');
 }
-function addNewRoutine(){const name=prompt('Routine name?')||'New routine';routines.push({id:Date.now(),name,items:[''],showOnToday:false});go('routines');}
-function renameRoutine(id){const r=routines.find(x=>x.id===id);if(!r)return;modal(`<h2>Rename</h2><input id="rname" value="${r.name}"><button class="btn btn-main" id="rn">Save</button>`);document.getElementById('rn').onclick=()=>{r.name=document.getElementById('rname').value||r.name;document.getElementById('modal').classList.add('hide');go('routines');};}
-function toggleRoutineToday(id){const r=routines.find(x=>x.id===id);if(r)r.showOnToday=!r.showOnToday;go('routines');}
-function editOneRoutine(id){const b=routines.find(x=>x.id===id);if(!b)return;let html=`<h2>Edit ${b.name}</h2>`;(b.items||[]).forEach((item,j)=>{html+=`<input value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value">`;});html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');editOneRoutine(${id})">+ Item</button><button class="btn" onclick="document.getElementById('modal').classList.add('hide');go('routines')">Done</button>`;modal(html);}
+function addNewRoutine(){const name=prompt('Routine name?')||'New routine';routines.push({id:Date.now(),name,items:[''],showOnToday:false});saveSet();go('routines');}
+function renameRoutine(id){const r=routines.find(x=>x.id===id);if(!r)return;modal(`<h2>Rename</h2><input id="rname" value="${r.name}"><button class="btn btn-main" id="rn">Save</button>`);document.getElementById('rn').onclick=()=>{r.name=document.getElementById('rname').value||r.name;saveSet();document.getElementById('modal').classList.add('hide');go('routines');};}
+function toggleRoutineToday(id){const r=routines.find(x=>x.id===id);if(r)r.showOnToday=!r.showOnToday;saveSet();go('routines');}
+function editOneRoutine(id){const b=routines.find(x=>x.id===id);if(!b)return;let html=`<h2>Edit ${b.name}</h2>`;(b.items||[]).forEach((item,j)=>{html+=`<input value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value;saveSet()">`;});html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');saveSet();editOneRoutine(${id})">+ Item</button><button class="btn btn-main" onclick="saveSet();document.getElementById('modal').classList.add('hide');go('routines')">Save</button>`;modal(html);}
 
-function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');const dep=i.dependsOn?' <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>':'';return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'}" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}${dep}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div></div>`;}
+function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'}" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div></div>`;}
 
 function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);if(page==='tasks'||page==='ideas')renderList(document.getElementById('main'),page==='tasks'?'task':'idea');}
 
@@ -445,15 +482,14 @@ async function openItem(id){
   if (!it) return;
   window._cur = it;
   modal(`<h2>Edit</h2>
-    <input id="et" value="${(it.title||'').replace(/"/g,'"')}">
+    <input id="et" value="${(it.title||'').replace(/"/g,'"')}" style="font-weight:700;font-size:1.15rem">
     <label>Due date</label><input id="ed" type="date" value="${it.due||''}">
     <label>Recurrence</label><select id="erec" onchange="showRecExtra();document.getElementById('eth').checked=!!this.value;document.getElementById('eshowcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily" ${it.recurrence==='daily'?'selected':''}>Daily</option><option value="weekly" ${it.recurrence==='weekly'?'selected':''}>Weekly</option><option value="monthly" ${it.recurrence==='monthly'?'selected':''}>Monthly</option><option value="yearly" ${it.recurrence==='yearly'?'selected':''}>Yearly</option><option value="custom" ${it.recurrence==='custom'?'selected':''}>Custom</option></select><div id="erecextra"></div>
     
-    <div style="display:flex;gap:12px;flex-wrap:wrap"><label><input type="checkbox" id="eth" ${it.trackHabit?'checked':''}> Habit</label><label><input type="checkbox" id="eshowcal" ${it.showInCal!==false?'checked':''}> Calendar</label><label><input type="checkbox" id="eshowtoday" ${it.showInToday!==false?'checked':''}> Today</label><label><input type="checkbox" id="eremind" ${it.reminder?'checked':''} onchange="var o=document.getElementById('eremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label></div><div id="eremopts" style="display:${it.reminder?'block':'none'}"><select id="erem1"><option value="">None</option><option value="0d">On the day</option><option value="1d" ${it.rem1==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem1==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem1==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem1==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem1==='28d'?'selected':''}>4 weeks before</option></select><select id="erem2"><option value="">None</option><option value="0d" ${it.rem2==='0d'?'selected':''}>On the day</option><option value="1d" ${it.rem2==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem2==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem2==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem2==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem2==='28d'?'selected':''}>4 weeks before</option></select></div>
-    <label>Category</label><input id="ecat" value="${it.cat||''}">
+    <div style="display:flex;gap:12px;flex-wrap:wrap"><label><input type="checkbox" id="eshowtoday" ${it.showInToday!==false?'checked':''}> My Day</label><label><input type="checkbox" id="eremind" ${it.reminder?'checked':''} onchange="var o=document.getElementById('eremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label><label><input type="checkbox" id="eshowcal" ${it.showInCal!==false?'checked':''}> Calendar</label><label><input type="checkbox" id="eth" ${it.trackHabit?'checked':''}> Habit</label></div><div id="eremopts" style="display:${it.reminder?'block':'none'}"><select id="erem1"><option value="">None</option><option value="0d">On the day</option><option value="1d" ${it.rem1==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem1==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem1==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem1==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem1==='28d'?'selected':''}>4 weeks before</option></select><select id="erem2"><option value="">None</option><option value="0d" ${it.rem2==='0d'?'selected':''}>On the day</option><option value="1d" ${it.rem2==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem2==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem2==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem2==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem2==='28d'?'selected':''}>4 weeks before</option></select></div>
+    <label>Category</label><input id="ecat" list="ecatlist" value="${it.cat||''}"><datalist id="ecatlist"></datalist>
     <label>Project</label><input id="eproj" list="eprojlist" placeholder="Project"><datalist id="eprojlist"></datalist>
     <label>Tags</label><input id="etags" value="${(it.tags||[]).join(', ')}">
-    <label>Depends on</label><input id="edep" placeholder="Type task name..." oninput="suggestDep(this.value)"><div id="depsug" class="suggest"></div>
     <label>Type</label><select id="etype"><option ${it.type==='task'?'selected':''}>task</option><option ${it.type==='idea'?'selected':''}>idea</option></select>
     <label>Image URL</label><input id="eimg" value="${it.image||''}" placeholder="optional">
     <label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById('eimg').value=r.result;};r.readAsDataURL(f);}">
@@ -463,7 +499,7 @@ async function openItem(id){
     </details><button class="btn btn-main" id="es">Save</button>
     <button class="btn" style="background:#555" onclick="toggleComplete(${id})">${it.done?'Mark incomplete':'Mark complete'}</button>
     <button class="btn" style="background:#c00" onclick="confirmDel(${id})">Delete</button>`);
-  setTimeout(showRecExtra, 50); setTimeout(renderSubs, 50); document.getElementById('es').onclick = async () => {
+  setTimeout(showRecExtra, 50); setTimeout(renderSubs, 50); setTimeout(async()=>{const its=await all('items');const cats=[...new Set(its.map(i=>i.cat).filter(Boolean))];const dl=document.getElementById('ecatlist');if(dl)dl.innerHTML=cats.map(c=>`<option value="${c}">`).join(''); const mc=document.querySelector('.modal-c'); if(mc) mc.scrollTop=0; },50); document.getElementById('es').onclick = async () => {
     it.title = document.getElementById('et').value;
     it.notes = document.getElementById('en').value;
     it.due = document.getElementById('ed').value || null;
@@ -544,7 +580,16 @@ function bind(){document.querySelectorAll('input[data-id]').forEach(c=>c.onchang
   go(page);
 });}
 
-async function renderList(el,type){let items=(await all('items')).filter(i=>i.type===type);if(settings.sort==='alpha'){items.sort((a,b)=>{if(settings.secSort==='cat'){const c=(a.cat||'').localeCompare(b.cat||'');if(c)return c;}else if(settings.secSort==='due'){const d=(a.due||'9999').localeCompare(b.due||'9999');if(d)return d;}return a.title.localeCompare(b.title);});}else if(settings.sort==='cat'){items.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')|| (settings.secSort==='alpha'?a.title.localeCompare(b.title):(settings.secSort==='due'?(a.due||'9999').localeCompare(b.due||'9999'):0)) );}else items.sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.due||'9999').localeCompare(b.due||'9999'));let extra=`<div id="sortwrap" style="display:${settings.showSort?'block':'none'};margin-bottom:8px"><select class="small" onchange="settings.sort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.sort==='due'?'selected':''}>Group by date</option><option value="cat" ${settings.sort==='cat'?'selected':''}>Group by category</option><option value="alpha" ${settings.sort==='alpha'?'selected':''}>A–Z</option></select> <select class="small" onchange="settings.secSort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.secSort==='due'?'selected':''}>Then by date</option><option value="cat" ${settings.secSort==='cat'?'selected':''}>Then by category</option><option value="alpha" ${settings.secSort==='alpha'?'selected':''}>Then A–Z</option></select></div>`;if(selectMode)extra+=`<button class="small btn" onclick="selectMode=false;selected.clear();go(page)">Done</button> `;else extra+=`<button class="small btn" onclick="settings.showSort=!settings.showSort;saveSet();go(page)">Sort</button> <button class="small btn" onclick="settings.taskBoard=!settings.taskBoard;saveSet();go(page)">${settings.taskBoard?'List':'Board'}</button> <button class="small btn" onclick="showPasteModal()">Paste</button> <button class="small btn" onclick="selectMode=true;go(page)">Select</button> `;if(selected.size && selectMode)extra+=`<div style="margin-top:6px"><button class="small btn" style="background:#555" onclick="bulkResched()">Reschedule</button> <button class="small btn" style="background:#555" onclick="bulkComplete()">Complete</button> <button class="small btn" style="background:#555" onclick="bulkIncomplete()">Incomplete</button> <button class="small btn" style="background:#c00" onclick="bulkDelete()">Delete</button></div>`;if(settings.taskBoard && type==='task'){el.innerHTML=`<div class="sec">${extra}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;row-gap:12px">${items.map(i=>`<div class="item" style="--c:${i.color};height:100px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px" onclick="openItem(${i.id})"><div class="t">${i.title}</div></div>`).join('')}</div></div>`;}else if(settings.sort==='cat'){
+
+async function populateTagFilter(){
+  const box = document.getElementById('tagfilterbox');
+  if(!box || !settings.showTagFilter) return;
+  const items = await all('items');
+  const tags = [...new Set(items.flatMap(i=>i.tags||[]))].sort();
+  settings.selectedTags = settings.selectedTags || [];
+  box.innerHTML = tags.map(t=>`<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><input type="checkbox" style="width:20px;height:20px;margin:0" ${settings.selectedTags.includes(t)?'checked':''} onchange="if(this.checked){settings.selectedTags=settings.selectedTags||[];if(!settings.selectedTags.includes('${t}'))settings.selectedTags.push('${t}');}else{settings.selectedTags=(settings.selectedTags||[]).filter(x=>x!=='${t}');}saveSet();go(page)"> <span>${t}</span></div>`).join('') || '<span style="color:var(--text-sec)">No tags yet</span>';
+}
+async function renderList(el,type){let items=(await all('items')).filter(i=>i.type===type && !i.title.includes('category placeholder') && (settings.habitFilter==='habits'?i.trackHabit:settings.habitFilter==='oneoff'?!i.trackHabit:true) && (!settings.selectedTags||!settings.selectedTags.length || (i.tags||[]).some(t=>settings.selectedTags.includes(t))));if(settings.sort==='alpha'){items.sort((a,b)=>{if(settings.secSort==='cat'){const c=(a.cat||'').localeCompare(b.cat||'');if(c)return c;}else if(settings.secSort==='due'){const d=(a.due||'9999').localeCompare(b.due||'9999');if(d)return d;}return a.title.localeCompare(b.title);});}else if(settings.sort==='cat'){items.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')|| (settings.secSort==='alpha'?a.title.localeCompare(b.title):(settings.secSort==='due'?(a.due||'9999').localeCompare(b.due||'9999'):0)) );}else items.sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.due||'9999').localeCompare(b.due||'9999'));let extra=`<div id="sortwrap" style="display:${settings.showSort?'block':'none'};margin-bottom:8px"><select class="small" onchange="settings.sort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.sort==='due'?'selected':''}>Group by date</option><option value="cat" ${settings.sort==='cat'?'selected':''}>Group by category</option><option value="alpha" ${settings.sort==='alpha'?'selected':''}>A–Z</option></select> <select class="small" onchange="settings.secSort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.secSort==='due'?'selected':''}>Then by date</option><option value="cat" ${settings.secSort==='cat'?'selected':''}>Then by category</option><option value="alpha" ${settings.secSort==='alpha'?'selected':''}>Then A–Z</option></select></div>`;if(selectMode)extra+=`<button class="small btn" onclick="selectMode=false;selected.clear();go(page)">Done</button> `;else extra+=`<button class="small btn" onclick="settings.habitFilter=(settings.habitFilter||'all')==='all'?'oneoff':settings.habitFilter==='oneoff'?'habits':'all';saveSet();go(page)">${(settings.habitFilter||'all')==='all'?'All':settings.habitFilter==='oneoff'?'One-off':'Habits'}</button> <button class="small btn" onclick="settings.showTagFilter=!settings.showTagFilter;saveSet();go(page)">Tags</button> <button class="small btn" onclick="settings.showSort=!settings.showSort;saveSet();go(page)">Sort</button> <button class="small btn" onclick="settings.taskBoard=!settings.taskBoard;saveSet();go(page)">${settings.taskBoard?'List':'Board'}</button> <button class="small btn" onclick="showPasteModal()">Paste</button> <button class="small btn" onclick="selectMode=true;go(page)">Select</button> <div id="tagfilterbox" style="display:${settings.showTagFilter?'block':'none'};margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:8px;width:100%"></div>`;if(selected.size && selectMode)extra+=`<div style="margin-top:6px"><button class="small btn" style="background:#555" onclick="bulkResched()">Reschedule</button> <button class="small btn" style="background:#555" onclick="bulkComplete()">Complete</button> <button class="small btn" style="background:#555" onclick="bulkIncomplete()">Incomplete</button> <button class="small btn" style="background:#555" onclick="bulkEdit()">Bulk edit</button> <button class="small btn" style="background:#c00" onclick="bulkDelete()">Delete</button></div>`;if(settings.taskBoard && type==='task'){el.innerHTML=`<div class="sec">${extra}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;row-gap:12px">${items.map(i=>`<div class="item" style="--c:${i.color};height:100px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px" onclick="openItem(${i.id})"><div class="t">${i.title}</div></div>`).join('')}</div></div>`;}else if(settings.sort==='cat'){
     const groups={};
     items.forEach(i=>{const c=i.cat||'None';(groups[c]=groups[c]||[]).push(i);});
     let body='';
@@ -567,7 +612,7 @@ async function renderList(el,type){let items=(await all('items')).filter(i=>i.ty
     });
     const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date']; for (const name of order) { const list=groups[name]; if(!list) continue; if(settings.secSort==='cat') list.sort((a,b)=>(a.cat||'zzz').localeCompare(b.cat||'zzz')); else if(settings.secSort==='alpha') list.sort((a,b)=>a.title.localeCompare(b.title)); else if(settings.secSort==='due') list.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')); if (list.length) body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+list.map(row).join('')+'</div></div>'; }
   } else body = items.map(row).join('');
-  el.innerHTML=`<div class="sec">${extra}<br><br>${body||'<p>None</p>'}</div>`;}bind(); applyTaskCollapsed();}
+  el.innerHTML=`<div class="sec">${extra}<br><br>${body||'<p>None</p>'}</div>`;}bind(); applyTaskCollapsed(); setTimeout(populateTagFilter,30);}
 
 function applyTaskCollapsed(){
   if(!settings.collapsed) return;
@@ -588,13 +633,13 @@ function showPasteModal(){
     <textarea id="paste" placeholder="One task per line" style="height:120px"></textarea>
     <label>Due date (shared)</label><input id="pdue" type="date">
     <label>Recurrence (shared)</label><select id="prec"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select>
-    <label>Category (shared)</label><input id="pcat" value="General">
+    <label>Category (shared)</label><input id="pcat" value="[Misc]">
     <label>Colour</label><input id="pcol" type="color" value="#6b7280">
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin:8px 0">
-      <label><input type="checkbox" id="phabit"> Habit</label>
-      <label><input type="checkbox" id="ptoday" checked> Today</label>
-      <label><input type="checkbox" id="pcal" checked> Calendar</label>
+      <label><input type="checkbox" id="ptoday" checked> My Day</label>
       <label><input type="checkbox" id="premind" onchange="document.getElementById('premotps').style.display=this.checked?'block':'none'"> Reminder</label>
+      <label><input type="checkbox" id="pcal" checked> Calendar</label>
+      <label><input type="checkbox" id="phabit"> Habit</label>
     </div>
     <div id="premotps" style="display:none">
       <select id="prem1"><option value="">None</option><option value="0d">On the day</option><option value="1d">1 day before</option><option value="2d">2 days before</option><option value="7d">1 week before</option><option value="14d">2 weeks before</option><option value="28d">4 weeks before</option></select>
@@ -607,7 +652,7 @@ async function doPaste(){
   if(!text.trim()) return;
   const due = document.getElementById('pdue').value || null;
   const rec = document.getElementById('prec').value || null;
-  const cat = document.getElementById('pcat').value || 'General';
+  const cat = document.getElementById('pcat').value || '[Misc]';
   const col = (settings.catColors||{})[cat] || document.getElementById('pcol').value;
   const habit = document.getElementById('phabit').checked;
   const showToday = document.getElementById('ptoday').checked;
@@ -623,6 +668,51 @@ async function doPaste(){
   go('tasks');
 }
 
+
+async function bulkEdit(){
+  const items = await all('items');
+  const cats = [...new Set(items.map(i=>i.cat).filter(Boolean))];
+  const ps = await all('projects');
+  modal(`<h2>Bulk edit ${selected.size} items</h2>
+    <label>Category</label><input id="becat" list="becatlist" placeholder="[no change]"><datalist id="becatlist">${cats.map(c=>'<option value="'+c+'">').join('')}</datalist>
+    <label>Project</label><input id="beproj" list="beprojlist" placeholder="[no change]"><datalist id="beprojlist">${ps.map(p=>'<option value="'+p.name+'">').join('')}</datalist>
+    <label>Add tags (comma)</label><input id="betags" placeholder="[no change]">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:8px 0">
+      <label><input type="checkbox" id="betoday"> My Day</label>
+      <label><input type="checkbox" id="becal"> Calendar</label>
+      <label><input type="checkbox" id="behabit"> Habit</label>
+    </div>
+    <button class="btn btn-main" onclick="doBulkEdit()">Apply</button>`);
+}
+async function doBulkEdit(){
+  const cat = document.getElementById('becat').value.trim();
+  const projName = document.getElementById('beproj').value.trim();
+  const tags = (document.getElementById('betags').value||'').split(',').map(t=>t.trim()).filter(Boolean);
+  const habit = document.getElementById('behabit').checked;
+  const today = document.getElementById('betoday').checked;
+  const cal = document.getElementById('becal').checked;
+  const items = await all('items');
+  let proj = null;
+  if(projName){
+    const ps = await all('projects');
+    proj = ps.find(p=>p.name.toLowerCase()===projName.toLowerCase());
+    if(!proj){ await add('projects',{name:projName,created:Date.now(),trackProgress:true}); const ps2=await all('projects'); proj=ps2.find(p=>p.name.toLowerCase()===projName.toLowerCase()); }
+  }
+  for(const id of selected){
+    const it = items.find(x=>x.id==id);
+    if(!it) continue;
+    if(cat) it.cat = cat;
+    if(proj) it.projectId = proj.id;
+    if(tags.length) it.tags = [...new Set([...(it.tags||[]), ...tags])];
+    if(document.getElementById('behabit').checked) it.trackHabit = true;
+    if(document.getElementById('betoday').checked) it.showInToday = true;
+    if(document.getElementById('becal').checked) it.showInCal = true;
+    await put('items', it);
+  }
+  selected.clear(); selectMode=false;
+  document.getElementById('modal').classList.add('hide');
+  go(page);
+}
 function bulkResched(){
   modal(`<h2>Reschedule selected</h2>
     <label>Days from current due date</label><input id="brdays" type="number" placeholder="e.g. 3">
@@ -706,15 +796,38 @@ async function showDay(key, inline){
   if(inline){ const el=document.getElementById('daylist'); if(el) el.innerHTML = '<h3>'+key+'</h3>' + (dayItems.map(i => '<div class="item" draggable="true" style="--c:'+i.color+'" onclick="openItem('+i.id+')"><div class="t">'+i.title+'</div></div>').join('') || '<p>Nothing</p>'); } else { const el=document.getElementById('daylist'); if(el) el.innerHTML = '<h3>'+key+'</h3>' + (dayItems.map(i => '<div class="item" draggable="true" style="--c:'+i.color+'" onclick="openItem('+i.id+')"><div class="t">'+i.title+'</div></div>').join('') || '<p>Nothing</p>'); }
 }
 
-async function renderInbox(el){const items=(await all('items')).filter(i=>!i.cat||i.cat==='General'||!i.due);el.innerHTML=`<div class="sec">${items.map(row).join('')||'<p style="color:var(--text-sec);padding:8px 0">Add a task</p>'}</div>`;bind();}
+async function renderInbox(el){
+  const items = (await all('items')).filter(i=>!i.cat||i.cat==='General'||i.cat==='[Misc]'||!i.due && !i.title.includes('category placeholder')).sort((a,b)=>(a.order||0)-(b.order||0));
+  let html = '<div class="sec">';
+  items.forEach((i,idx)=>{
+    html += `<div class="item" style="--c:${i.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openItem(${i.id})"><div class="t" style="flex:1">${i.title}</div><div style="display:flex;gap:4px"><button class="small btn" onclick="event.stopPropagation();moveItemOrder(${i.id},-1)">↑</button><button class="small btn" onclick="event.stopPropagation();moveItemOrder(${i.id},1)">↓</button></div></div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html || '<p style="color:var(--text-sec);padding:8px 0">Add a task</p>';
+}
+async function moveItemOrder(id, dir){
+  const items = await all('items');
+  const sorted = items.sort((a,b)=>(a.order||0)-(b.order||0));
+  const idx = sorted.findIndex(i=>i.id===id);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=sorted.length) return;
+  const a = sorted[idx], b = sorted[newIdx];
+  const tmp = a.order || idx;
+  a.order = b.order || newIdx;
+  b.order = tmp;
+  await put('items', a);
+  await put('items', b);
+  go(page);
+}
 async function renderProjects(el){
   const ps = await all('projects');
   const items = await all('items');
   const sort = settings.projSort || 'alpha';
   let sorted = [...ps];
-  if(sort === 'alpha') sorted.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  if(sort === 'alpha') sorted.sort((a,b)=> (a.order||0)-(b.order||0) || (a.name||'').localeCompare(b.name||''));
   else if(sort === 'date') sorted.sort((a,b)=> (b.created||0) - (a.created||0));
-  else if(sort === 'cat') sorted.sort((a,b)=> (a.cat||'zzz').localeCompare(b.cat||'zzz') || (a.name||'').localeCompare(b.name||''));
+  else if(sort === 'cat') sorted.sort((a,b)=> (a.cat||'zzz').localeCompare(b.cat||'zzz') || (a.order||0)-(b.order||0) || (a.name||'').localeCompare(b.name||''));
   let html = `<div class="sec">
     <button class="btn" onclick="addProject()">+ New Project</button>
     <select onchange="settings.projSort=this.value;saveSet();go('projects')" style="margin:8px 0">
@@ -731,7 +844,7 @@ async function renderProjects(el){
         const linked = items.filter(i => i.projectId === p.id).sort((a,b)=>(a.order||0)-(b.order||0));
         const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
         const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
-        html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem">${p.name}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
+        html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center"><span>${p.name}</span><span><button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},-1)">↑</button> <button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},1)">↓</button></span></div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
       });
       html += '</div></div>';
     });
@@ -740,7 +853,8 @@ async function renderProjects(el){
       const linked = items.filter(i => i.projectId === p.id);
       const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
       const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
-      html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem">${p.name}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
+      const arrows = (sort !== 'date') ? `<span><button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},-1)">↑</button> <button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},1)">↓</button></span>` : '';
+      html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center"><span>${p.name}</span>${arrows}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
     });
   }
   el.innerHTML = html + '</div>';
@@ -766,17 +880,34 @@ function addProject(){
     go('projects');
   };
 }
+
+async function pasteToProject(pid){
+  modal(`<h2>Paste tasks into project</h2><textarea id="ppaste" placeholder="One task per line" style="height:120px"></textarea><button class="btn btn-main" onclick="doPasteToProject(${pid})">Add</button>`);
+}
+async function doPasteToProject(pid){
+  const text = document.getElementById('ppaste').value;
+  if(!text.trim()) return;
+  const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
+  for(const title of lines){
+    await add('items',{title, type:'task', due:null, done:false, color:'#6b7280', cat:'[Misc]', projectId:pid, created:Date.now(), trackHabit:false, showInCal:true, showInToday:true, completions:{}});
+  }
+  document.getElementById('modal').classList.add('hide');
+  go('projects');
+}
 async function openProject(id){
   const ps = await all('projects');
   const p = ps.find(x => x.id == id);
   if (!p) return;
   const items = await all('items');
-  const linked = items.filter(i => i.projectId === id).sort((a,b)=>(a.order??9999)-(b.order??9999));
+  const linked = items.filter(i => i.projectId === id);
+  const sortMode = settings.projTaskSort || 'manual';
+  if(sortMode === 'date') linked.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
+  else linked.sort((a,b)=>(a.order??9999)-(b.order??9999));
   let html = `<h2>${p.name}</h2><p>Category: ${p.cat||'–'} · ${linked.length} tasks</p>`;
-  html += `<details open><summary style="cursor:pointer;font-weight:600;margin:8px 0">View tasks (${linked.length})</summary><div style="max-height:40vh;overflow-y:auto">`;
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0"><span style="font-weight:600;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">▼ View tasks (${linked.length})</span><button class="small btn" onclick="settings.projTaskSort=settings.projTaskSort==='date'?'manual':'date';saveSet();openProject(${id})">${sortMode==='date'?'Sort: Date':'Sort: Manual'}</button></div><div style="max-height:40vh;overflow-y:auto">`;
   html += linked.map((i,idx) => `<div class="item" style="--c:${i.color};padding:6px 10px;margin:4px 0;display:flex;align-items:center" onclick="openItem(${i.id})"><div class="t" style="font-size:0.9rem;flex:1">${i.title}</div><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},-1)">↑</span><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},1)">↓</span><span style="font-size:1.2rem;font-weight:300;color:#fff;padding:0 8px;cursor:pointer;line-height:1" onclick="event.stopPropagation();toggleProjectTask(${i.id},${id},false)">×</span></div>`).join('') || '<p>No tasks yet</p>';
-  html += '</div></details>';
-  html += `<button class="btn" onclick="manageProjectTasks(${id})">Add / remove tasks</button><button class="btn" onclick="renameProject(${id})">Rename</button><button class="btn" onclick="editProjectCat(${id})">Change category</button>`;
+  html += '</div>';
+  html += `<button class="btn" onclick="manageProjectTasks(${id})">Add / remove tasks</button><button class="btn" onclick="pasteToProject(${id})">Paste tasks</button><button class="btn" onclick="renameProject(${id})">Rename</button><button class="btn" onclick="editProjectCat(${id})">Change category</button>`;
   html += `<button class="btn" style="background:#c00" onclick="delProject(${id})">Delete project</button>`;
   modal(html);
 }
@@ -903,6 +1034,29 @@ function filterBulkList(){
     r.style.display = (r.dataset.title||'').includes(q) ? 'flex' : 'none';
   });
 }
+async function moveProject(id, dir){
+  const ps = await all('projects');
+  const sort = settings.projSort || 'alpha';
+  let sorted = [...ps];
+  if(sort === 'cat'){
+    const p = ps.find(x=>x.id===id);
+    if(!p) return;
+    sorted = ps.filter(x=>(x.cat||'None')===(p.cat||'None')).sort((a,b)=>(a.order||0)-(b.order||0));
+  } else {
+    sorted = ps.sort((a,b)=>(a.order||0)-(b.order||0));
+  }
+  const idx = sorted.findIndex(p=>p.id===id);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=sorted.length) return;
+  const a = sorted[idx], b = sorted[newIdx];
+  const tmp = a.order || idx;
+  a.order = b.order || newIdx;
+  b.order = tmp;
+  await put('projects', a);
+  await put('projects', b);
+  go('projects');
+}
 async function delProject(id){
   if (!confirm('Delete this project?')) return;
   await new Promise(r => { const tx = db.transaction('projects','readwrite'); tx.objectStore('projects').delete(id); tx.oncomplete = r; });
@@ -910,7 +1064,7 @@ async function delProject(id){
   go('projects');
 }
 async function renderResources(el){
-  const rs = (await all('resources')).sort((a,b)=>(b.lastOpened||0)-(a.lastOpened||0));
+  const rs = (await all('resources')).sort((a,b)=>(a.order||0)-(b.order||0) || (b.lastOpened||0)-(a.lastOpened||0));
   let html = '<div class="sec"><button class="small btn" onclick="settings.resBoard=!settings.resBoard;saveSet();go(\'resources\')">'+(settings.resBoard?'List':'Board')+'</button> <button class="small btn" onclick="settings.showAddRes=!settings.showAddRes;saveSet();go(\'resources\')">'+(settings.showAddRes?'Cancel':'New resource')+'</button>';
   if(settings.showAddRes) html += '<div style="margin-top:8px;padding:8px;border:1px solid var(--border);border-radius:10px"><input id="rt" placeholder="Title"><input id="ru" placeholder="URL"><label>Colour</label><input id="rcol" type="color" value="#6b7280"><input id="rsec" placeholder="Section (optional)"><input id="rimg" placeholder="Image URL (optional)"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById(\'rimg\').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="add(\'resources\',{title:document.getElementById(\'rt\').value,url:document.getElementById(\'ru\').value,color:document.getElementById(\'rcol\').value,image:document.getElementById(\'rimg\').value,section:document.getElementById(\'rsec\').value||\'General\',created:Date.now()}).then(()=>{settings.showAddRes=false;saveSet();go(\'resources\');})">Add</button></div>';
   if (settings.resBoard) {
@@ -927,7 +1081,7 @@ async function renderResources(el){
       html += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'res-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+s+'</div><div class="sec-body">';
       html += groups[s].map(r => {
         const days = r.lastOpened ? Math.floor((Date.now()-r.lastOpened)/86400000) : '–';
-        return `<div class="item" style="--c:${r.color||'#6b7280'};position:relative"><div class="t" onclick="openResource(${r.id})">${r.title}</div><div class="m">${r.url||''} · ${days}d ago</div><span style="position:absolute;top:8px;right:12px;font-size:0.85rem;opacity:0.8;z-index:5" onclick="event.stopPropagation();event.preventDefault();editResource(${r.id})">edit</span></div>`;
+        return `<div class="item" style="--c:${r.color||'#6b7280'};position:relative;display:flex;align-items:center;justify-content:space-between"><div style="flex:1" onclick="openResource(${r.id})"><div class="t">${r.title}</div><div class="m">${r.url||''} · ${days}d ago</div></div><div style="display:flex;gap:4px;align-items:center"><button class="small btn" onclick="event.stopPropagation();moveResource(${r.id},-1)">↑</button><button class="small btn" onclick="event.stopPropagation();moveResource(${r.id},1)">↓</button><span style="font-size:0.85rem;opacity:0.8;cursor:pointer" onclick="event.stopPropagation();editResource(${r.id})">edit</span></div></div>`;
       }).join('');
       html += '</div></div>';
     });
@@ -935,14 +1089,20 @@ async function renderResources(el){
   html += '</div>';
   el.innerHTML = html; if(settings.collapsed){Object.keys(settings.collapsed).forEach(k=>{if(k.startsWith('res-')&&settings.collapsed[k]){document.querySelectorAll('.sec-h').forEach(el=>{if(el.textContent.trim()===k.slice(4))el.nextElementSibling.style.display='none';});}});} 
 }
-async function openResource(id){
+async function moveResource(id, dir){
   const rs = await all('resources');
-  const r = rs.find(x=>x.id===id);
-  if(!r) return;
-  r.lastOpened = Date.now();
-  await put('resources', r);
-  if (r.url) { modal('<h2>'+r.title+'</h2><p>'+r.url+'</p><button class="btn btn-main" onclick="const a=document.createElement(\'a\');a.href=\''+r.url.replace(/'/g,"\\'")+'\';a.target=\'_blank\';a.rel=\'noopener\';a.click();document.getElementById(\'modal\').classList.add(\'hide\')">Open in browser</button>'); return; }
-  else editResource(id);
+  rs.forEach((r,i)=>{ if(r.order==null) r.order=i; });
+  const sorted = rs.sort((a,b)=>a.order-b.order);
+  const idx = sorted.findIndex(r=>r.id===id);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=sorted.length) return;
+  const a = {...sorted[idx]}, b = {...sorted[newIdx]};
+  const tmp = a.order;
+  a.order = b.order;
+  b.order = tmp;
+  await put('resources', a);
+  await put('resources', b);
   go('resources');
 }
 async function editResource(id){const rs=await all('resources');const r=rs.find(x=>x.id==id);if(!r)return;modal(`<h2>Edit Resource</h2><input id="ert" value="${(r.title||'').replace(/"/g,'"')}"><input id="eru" value="${r.url||''}" placeholder="URL"><label>Colour</label><input id="ercol" type="color" value="${r.color||'#6b7280'}"><input id="ersec" value="${r.section||'General'}" placeholder="Section"><input id="erimg" value="${r.image||''}" placeholder="Image URL"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById('erimg').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="saveResource(${id})">Save</button><button class="btn" style="background:#ef4444" onclick="deleteResource(${id})">Delete</button>`);}
@@ -1042,11 +1202,11 @@ async function habitHistory(){
 }
 
 async function renameCat(old, newName){ const n=(newName||'').trim(); if(!n||n===old) return; const items=await all("items"); for(const i of items){ if(i.cat===old){ i.cat=n; await put("items",i); } } settings.catColors=settings.catColors||{}; if(settings.catColors[old]){ settings.catColors[n]=settings.catColors[old]; delete settings.catColors[old]; saveSet(); } manageCategories(); }
-async function delCat(c){ if(!confirm("Remove category from all tasks?")) return; const items=await all("items"); for(const i of items){ if(i.cat===c){ i.cat="General"; await put("items",i); } } manageCategories(); }
+async function delCat(c){ if(!confirm("Remove category from all tasks and delete placeholders?")) return; const items=await all("items"); for(const i of items){ if(i.cat===c){ if(i.title.includes('category placeholder')){ const tx=db.transaction('items','readwrite'); tx.objectStore('items').delete(i.id); } else { i.cat="[Misc]"; await put("items",i); } } } manageCategories(); }
 async function manageCategories(){
   const items = await all('items');
   const cats = [...new Set(items.map(i => i.cat).filter(Boolean))];
-  let html = '<h2>Categories</h2><p>Currently used:</p>' + (cats.map(c => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap"><input type="color" value="${(settings.catColors||{})[c]||'#888888'}" style="width:40px;height:28px;padding:0;border:none" onchange="settings.catColors=settings.catColors||{};settings.catColors['${c}']=this.value;saveSet()"><input id="rn-${c.replace(/[^a-z0-9]/gi,'_')}" value="${c}" style="flex:1;min-width:100px"><button class="small btn" onclick="renameCat('${c}',document.getElementById('rn-${c.replace(/[^a-z0-9]/gi,'_')}').value)">Save</button><button class="small btn" onclick="delCat('${c}')">Delete</button></div>`).join('') || '<p>None yet</p>') +
+  let html = '<h2>Categories</h2><p>Currently used:</p>' + (cats.map(c => `<div style="display:flex;align-items:center;gap:8px;padding:6px 0;flex-wrap:wrap"><input type="color" value="${(settings.catColors||{})[c]||'#888888'}" style="width:40px;height:28px;padding:0;border:none" onchange="settings.catColors=settings.catColors||{};settings.catColors['${c}']=this.value;saveSet()"><input id="rn-${c.replace(/[^a-z0-9]/gi,'_')}" value="${c}" style="flex:1;min-width:100px"><button class="small btn btn-main" onclick="renameCat('${c}',document.getElementById('rn-${c.replace(/[^a-z0-9]/gi,'_')}').value)">Save</button><button class="small btn" style="background:#c00" onclick="delCat('${c}')">Delete</button></div>`).join('') || '<p>None yet</p>') +
     '<label>Add new category</label><input id="newcat" placeholder="e.g. Creativity"><button class="btn btn-main" id="addcat">Add category</button>';
   modal(html);
   document.getElementById('addcat').onclick = async () => {
@@ -1065,7 +1225,7 @@ function renderMore(el){el.innerHTML=`<div class="sec" style="padding-top:12vh;d
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('projects')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Projects</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="manageCategories()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1"/></svg>Categories</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('resources')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>Resources</button>
-<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('notes')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>Notes</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('ideas')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg>Ideas</button>
 </div>
 <button class="btn" style="width:100%;max-width:360px;margin-top:12px;height:72px;border-radius:16px;font-size:1.05rem;padding:12px" onclick="showSet()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
 </div>`;}
@@ -1134,7 +1294,7 @@ async function importData(){
       if (data.resources) for (const r of data.resources) await put('resources', r);
       if (data.notes) for (const n of data.notes) await put('notes', n);
       if (data.countdowns) for (const c of data.countdowns) await put('countdowns', c);
-      if (data.routines) routines = data.routines;
+      if (data.routines) { routines = data.routines; saveSet(); }
       if (data.settings) { settings = data.settings; saveSet(); }
       alert('Import complete');
       go(page);
@@ -1159,30 +1319,7 @@ async function exportData(){
   a.download = 'organiser-backup.json';
   a.click();
 }
-async function seed(){
-  settings.catColors = {
-    'Admin':'#FF7348',
-    'Art':'#8900C6',
-    'Baby':'#76BB40',
-    'Family/Friends':'#D12836',
-    'Health':'#008E2F',
-    'Home':'#FF9E00',
-    'Money':'#3A87FE',
-    'S':'#FC599E',
-    'Studies':'#0070FB',
-    'Work':'#C80055',
-    '[Misc]':'#6b7280'
-  };
-  saveSet();
-  const mural = await add('projects',{name:'Mural',cat:'Art',color:'#8900C6',created:Date.now(),trackProgress:true});
-  const today = new Date().toISOString().slice(0,10);
-  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
-  await add('items',{title:'Doodle',type:'task',due:today,recurrence:'daily',cat:'Art',projectId:mural,trackHabit:true,color:'#8900C6',done:false,created:Date.now(),completions:{}});
-  await add('items',{title:'Wash brushes',type:'task',due:today,recurrence:'weekly',cat:'Art',projectId:mural,trackHabit:true,color:'#8900C6',done:false,created:Date.now(),completions:{}});
-  await add('items',{title:'Paint flowers',type:'task',due:tomorrow,cat:'Art',projectId:mural,trackHabit:false,color:'#8900C6',done:false,created:Date.now(),reminder:true,rem1:'1d',completions:{}});
-  await add('notes',{title:'Sample note',body:'This is a sample note for testing.',color:'#4A9C3A',created:Date.now(),updated:Date.now()});
-  await add('notes',{title:'Another note',body:'A second sample in a different colour.',color:'#B18CFE',created:Date.now(),updated:Date.now()});
-}
+async function seed(){}
 init();
 </script>
 </body>
