@@ -1,11 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23FECB3E'/><circle cx='90' cy='90' r='36' fill='none' stroke='%23000' stroke-width='8'/><path d='M90 30v12M90 138v12M30 90h12M138 90h12M45 45l8.5 8.5M126.5 126.5l8.5 8.5M45 135l8.5-8.5M126.5 53.5l8.5-8.5' stroke='%23000' stroke-width='6' stroke-linecap='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%23FECB3E'/><circle cx='90' cy='90' r='36' fill='none' stroke='%23000' stroke-width='8'/><path d='M90 30v12M90 138v12M30 90h12M138 90h12M45 45l8.5 8.5M126.5 126.5l8.5 8.5M45 135l8.5-8.5M126.5 53.5l8.5-8.5' stroke='%23000' stroke-width='6' stroke-linecap='round'/></svg>">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.48</title>
+<title>Organiser v27.56</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -72,14 +78,14 @@ input[type=date], input[type=color] { height:44px; }
   <nav>
     <button data-p="today" class="active" title="My Day"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg></button>
     <button data-p="tasks" title="Tasks"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
-    <button data-p="notes" title="Notes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
-    <button data-p="habits" title="Habits"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
-    <button data-p="cal" title="Calendar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
     <button data-p="inbox" title="Inbox"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-6l-2 3H10l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg></button>
+    <button data-p="cal" title="Calendar"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></button>
+    <button data-p="habits" title="Habits"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M8 12l2.5 2.5L16 9"/></svg></button>
+    <button data-p="notes" title="Notes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></button>
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.48</div>
+<div id="ver">v27.56</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -92,7 +98,36 @@ let selectMode = false;
 let routines = [];
 
 const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,2);r.onerror=()=>rej(r.error);r.onsuccess=()=>res(r.result);r.onupgradeneeded=e=>{const d=e.target.result;['items','projects','resources','settings','countdowns','notes'].forEach(n=>{if(!d.objectStoreNames.contains(n))d.createObjectStore(n,{keyPath:'id',autoIncrement:true});});};});
-async function init(){db=await openDB();await loadSet();applyTheme();document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.p);});document.getElementById('add').onclick=quickAdd;document.getElementById('search').onclick=inSearch;document.getElementById('lookup').onclick=()=>{const q=prompt('Look up:');if(q){const a=document.createElement('a');a.href=settings.search+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.click();}};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.add('hide');if((await all('items')).length===0)await seed();go('today');}
+async function processOverdueHabits(){
+  const items = await all('items');
+  const today = new Date().toISOString().slice(0,10);
+  let changed = false;
+  for(const it of items){
+    if(!it.trackHabit || !it.due || !it.recurrence || it.due >= today) continue;
+    // Missed: record as skipped and advance
+    it.completions = it.completions || {};
+    if(!it.completions[it.due]) it.completions[it.due] = 'skip';
+    // Advance due date
+    const d = new Date(it.due);
+    if(it.recurrence==='daily') d.setDate(d.getDate()+1);
+    else if(it.recurrence==='weekly') d.setDate(d.getDate()+7);
+    else if(it.recurrence==='monthly') d.setMonth(d.getMonth()+1);
+    else if(it.recurrence==='yearly') d.setFullYear(d.getFullYear()+1);
+    else if(it.recurrence==='custom' && it.recEvery && it.recPeriod){
+      const n = it.recEvery || 1;
+      if(it.recPeriod==='days') d.setDate(d.getDate()+n);
+      else if(it.recPeriod==='weeks') d.setDate(d.getDate()+n*7);
+      else if(it.recPeriod==='months') d.setMonth(d.getMonth()+n);
+      else if(it.recPeriod==='years') d.setFullYear(d.getFullYear()+n);
+    }
+    it.due = d.toISOString().slice(0,10);
+    it.done = false;
+    await put('items', it);
+    changed = true;
+  }
+  return changed;
+}
+async function init(){db=await openDB();await loadSet();applyTheme();document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.p);});document.getElementById('add').onclick=quickAdd;document.getElementById('search').onclick=inSearch;document.getElementById('lookup').onclick=()=>{const q=prompt('Look up:');if(q){const a=document.createElement('a');a.href=settings.search+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.click();}};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.add('hide');if((await all('items')).length===0)await seed();await processOverdueHabits();go('today');}
 async function loadSet(){const s=await all('settings');if(s[0]){settings={...settings,...s[0]}; if(Array.isArray(s[0].routines)) routines = s[0].routines; }}
 function saveSet(){settings.routines = routines; db.transaction('settings','readwrite').objectStore('settings').put({id:1,...settings});}
 function applyScheme(){
@@ -202,6 +237,10 @@ let calFiltOpen=false;function toggleCalHide(type, show){
   if(currentDay) setTimeout(()=>showDay(currentDay, true), 50);
   saveSet();
 }
+function resetRoutine(id){
+  const r = routines.find(x=>x.id===id);
+  if(r){ r.done = {}; saveSet(); go('today'); }
+}
 function toggleRoutineLine(rid, idx){
   const r = routines.find(x=>x.id===rid);
   if(!r) return;
@@ -232,7 +271,7 @@ function togglePinNote(id, on){
   else settings.pinnedNotes = settings.pinnedNotes.filter(x=>x!==id);
   saveSet();
 }
-async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — due '+i.due+' (in '+label+')</div>';}); h+='</div>'; } const upR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return d>=0&&d<=30;}).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Key Dates</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+label+'</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Today</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600" onclick="toggleSec('rb${b.id}')"><span>${b.name}</span><span id="arrow${b.id}" style="font-size:1rem;font-weight:400">${(settings.collapsed||{})['rb'+b.id]?'+':'−'}</span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>`<div style="padding:2px 0;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x}</div>`).join('')}</div></div>`;});h+='</div></div>';const notes = await all('notes'); 
+async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — due '+i.due+' (in '+label+')</div>';}); h+='</div>'; } const upR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return d>=0&&d<=30;}).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Key Dates</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+label+'</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Today</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600" onclick="toggleSec('rb${b.id}')"><span>${b.name}</span><span style="display:flex;gap:8px;align-items:center"><span onclick="event.stopPropagation();resetRoutine(${b.id})" style="cursor:pointer;font-size:1.15rem" title="Reset">↻</span><span id="arrow${b.id}" style="font-size:1rem;font-weight:400">${(settings.collapsed||{})['rb'+b.id]?'+':'−'}</span></span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>`<div style="padding:2px 0;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x}</div>`).join('')}</div></div>`;});h+='</div></div>';const notes = await all('notes'); 
 const pinned = settings.pinnedNotes || [];
 const displayNotes = pinned.length ? notes.filter(n=>pinned.includes(n.id)).slice(0,4) : notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).slice(0,4);
 if(displayNotes.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'notestd\')" style="display:flex;justify-content:space-between;align-items:center">Notes <span onclick="event.stopPropagation();chooseMyDayNotes()" style="cursor:pointer;padding:4px" title="Pin notes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 11V7a3 3 0 016 0v4M5 11h14v4H5z"/></svg></span></h2><div id="notestd" class="sec-body" style="display:flex;gap:6px">';
@@ -266,10 +305,11 @@ async function renderHabits(el){
       const d = new Date(today); d.setDate(d.getDate()-i);
       const k = d.toISOString().slice(0,10);
       const st = comps[k];
-      cal += '<div style="width:22px;height:22px;border-radius:50%;background:'+(st==='done'?'#34c759':'#3a3a3c')+';border:'+(st==='skip'?'2px dotted #ff9500':'none')+';display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#fff;cursor:pointer" onclick="event.stopPropagation();quickMark('+it.id+',\''+k+'\')">'+(st==='done'?'✓':'')+'</div>';
+      const isDue = (it.due && it.due <= k && !st);
+      cal += '<div style="width:22px;height:22px;border-radius:50%;background:'+(st==='done'?'#34c759':'#3a3a3c')+';border:'+(st==='skip'?'2px dotted #ff9500':isDue?'2px solid #fff':'none')+';display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#fff;cursor:pointer" onclick="event.stopPropagation();quickMark('+it.id+',\''+k+'\')">'+(st==='done'?'✓':'')+'</div>';
     }
     cal += '</div>';
-    h += '<div class="block"><div class="block-h">'+it.title+' <span style="float:right;font-size:0.85rem">🔥 '+streak+'</span></div><div style="padding:8px 14px">'+cal+'</div></div>';
+    h += '<div class="block"><div class="block-h" style="cursor:pointer" onclick="openItem('+it.id+')">'+it.title+' <span style="float:right;font-size:0.85rem">🔥 '+streak+'</span></div><div style="padding:8px 14px">'+cal+'</div></div>';
     });
     h += '</div></div>';
   });
@@ -296,19 +336,16 @@ async function quickMark(id,date){
   if(date===today && it.recurrence){
     if(next==='done' || next==='skip'){
       if(!it._advancedToday){
-        const d=new Date(it.due||Date.now());
-        if(it.recurrence==='daily')d.setDate(d.getDate()+1);
-        else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
-        else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
-        else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
-        else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
-          const n=it.recEvery||1;
-          if(it.recPeriod==='days')d.setDate(d.getDate()+n);
-          else if(it.recPeriod==='weeks')d.setDate(d.getDate()+n*7);
-          else if(it.recPeriod==='months')d.setMonth(d.getMonth()+n);
-          else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()+n);
+        if(it.recurrence==='custom'){
+          advanceCustom(it);
+        } else {
+          const d=new Date(it.due||Date.now());
+          if(it.recurrence==='daily')d.setDate(d.getDate()+1);
+          else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
+          else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
+          else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
+          it.due=d.toISOString().slice(0,10);
         }
-        it.due=d.toISOString().slice(0,10);
         it._advancedToday=true;
       }
       it.done=false;
@@ -387,20 +424,30 @@ async function markHabit(id, status){
 async function renderNotes(el){
   const notes = await all('notes');
   const board = settings.notesBoard;
-  let html = '<div class="sec"><button class="btn btn-main" onclick="quickAddNote()">+ New note</button> <button class="small btn" onclick="settings.notesBoard=!settings.notesBoard;saveSet();go(\'notes\')">'+(board?'List':'Board')+'</button></div>';
+  let html = '<div class="sec"><button class="small btn" onclick="settings.notesBoard=!settings.notesBoard;saveSet();go(\'notes\')">'+(board?'List':'Board')+'</button> <select class="small" onchange="settings.notesSort=this.value;saveSet();renderNotes(document.getElementById(\'main\'))" style="width:auto"><option value="updated" '+(settings.notesSort!=='alpha'&&settings.notesSort!=='manual'?'selected':'')+'>Last updated</option><option value="alpha" '+(settings.notesSort==='alpha'?'selected':'')+'>A–Z</option><option value="manual" '+(settings.notesSort==='manual'?'selected':'')+'>Manual</option></select></div>';
   if(!notes.length) html += '<p style="color:var(--text-sec);padding:8px 0">Add a note</p>';
   else if(board){
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px">';
-    notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
+    const sorted = [...notes].sort((a,b)=>{
+      if(settings.notesSort==='alpha') return (a.title||'').localeCompare(b.title||'');
+      if(settings.notesSort==='manual') return (a.order||0)-(b.order||0);
+      return (b.updated||b.created)-(a.updated||a.created);
+    });
+    sorted.forEach(n=>{
       html += `<div class="item" style="--c:${n.color||'#6b7280'};height:120px;padding:10px;display:flex;flex-direction:column;justify-content:flex-end" onclick="openNote(${n.id})"><div class="t" style="font-size:0.9rem">${n.title||'Untitled'}</div><div class="m" style="font-size:0.75rem;opacity:0.9">${(n.body||'').slice(0,60)}</div></div>`;
     });
     html += '</div>';
   } else {
-    notes.sort((a,b)=>(a.order||0)-(b.order||0) || (b.updated||b.created)-(a.updated||a.created)).forEach(n=>{
-      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openNote(${n.id})"><div><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div><div style="display:flex;gap:4px"><button class="small btn" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</button><button class="small btn" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</button></div></div>`;
+    const sorted = [...notes].sort((a,b)=>{
+      if(settings.notesSort==='alpha') return (a.title||'').localeCompare(b.title||'');
+      if(settings.notesSort==='manual') return (a.order||0)-(b.order||0);
+      return (b.updated||b.created)-(a.updated||a.created);
+    });
+    sorted.forEach(n=>{
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openNote(${n.id})"><div><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div><div style="display:flex;gap:4px"><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</button><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</button></div></div>`;
     });
   }
-  el.innerHTML = html;
+  el.innerHTML = html + '<button class="btn btn-main" style="margin-top:16px;width:100%" onclick="quickAddNote()">+ New note</button>';
 }
 function quickAddNote(){
   modal('<h2>New note</h2><input id="nt" placeholder="Title" autofocus><textarea id="nb" placeholder="Note" style="height:120px"></textarea><label>Colour</label><input id="nc" type="color" value="#6b7280"><button class="btn btn-main" onclick="add(\'notes\',{title:document.getElementById(\'nt\').value,body:document.getElementById(\'nb\').value,color:document.getElementById(\'nc\').value,created:Date.now(),updated:Date.now()}).then(()=>{document.getElementById(\'modal\').classList.add(\'hide\');go(\'notes\');})">Save</button>');
@@ -442,12 +489,33 @@ function confirmDeleteNote(id){
 async function renderRoutinesPage(el){
   let h = `<div class="sec">`;
   routines.forEach((b,idx)=>{
-    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">${(settings.collapsed||{})['rp'+b.id]?'+':'−'}</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>'• '+x).join('<br>')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">Today</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
+    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">${(settings.collapsed||{})['rp'+b.id]?'+':'−'}</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>'• '+x).join('<br>')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">My Day</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
   });
   el.innerHTML = h + '</div><button class="btn btn-main" onclick="addNewRoutine()">+ New routine</button>';
   Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c && id.startsWith('rp')){const e=document.getElementById(id);if(e)e.classList.add('collapsed');const arrow=document.getElementById('arrow'+id);if(arrow)arrow.textContent='+';}});
 }
 
+function advanceCustom(it){
+  if(it.recurrence !== 'custom' || !it.recEvery || !it.recPeriod) return false;
+  const periodMs = it.recPeriod==='days' ? 86400000 : it.recPeriod==='weeks' ? 7*86400000 : it.recPeriod==='months' ? 30*86400000 : 365*86400000;
+  const windowStart = it.windowStart || it.due || new Date().toISOString().slice(0,10);
+  const windowEnd = new Date(new Date(windowStart).getTime() + (it.recEvery||1) * periodMs).toISOString().slice(0,10);
+  const comps = it.completions || {};
+  let count = 0;
+  for(const [d, s] of Object.entries(comps)){
+    if(s==='done' && d >= windowStart && d < windowEnd) count++;
+  }
+  if(count < (it.recEvery || 1)){
+    // Still need more in this window — keep due as today or window end
+    it.due = new Date().toISOString().slice(0,10);
+    return false; // not advanced
+  } else {
+    // Advance window
+    it.windowStart = windowEnd;
+    it.due = windowEnd;
+    return true;
+  }
+}
 function moveInArray(arr, idx, dir){
   const newIdx = idx + dir;
   if(newIdx < 0 || newIdx >= arr.length) return arr;
@@ -468,7 +536,16 @@ function confirmDeleteRoutine(id){
 function addNewRoutine(){const name=prompt('Routine name?')||'New routine';routines.push({id:Date.now(),name,items:[''],showOnToday:false});saveSet();go('routines');}
 function renameRoutine(id){const r=routines.find(x=>x.id===id);if(!r)return;modal(`<h2>Rename</h2><input id="rname" value="${r.name}"><button class="btn btn-main" id="rn">Save</button>`);document.getElementById('rn').onclick=()=>{r.name=document.getElementById('rname').value||r.name;saveSet();document.getElementById('modal').classList.add('hide');go('routines');};}
 function toggleRoutineToday(id){const r=routines.find(x=>x.id===id);if(r)r.showOnToday=!r.showOnToday;saveSet();go('routines');}
-function editOneRoutine(id){const b=routines.find(x=>x.id===id);if(!b)return;let html=`<h2>Edit ${b.name}</h2>`;(b.items||[]).forEach((item,j)=>{html+=`<input value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value;saveSet()">`;});html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');saveSet();editOneRoutine(${id})">+ Item</button><button class="btn btn-main" onclick="saveSet();document.getElementById('modal').classList.add('hide');go('routines')">Save</button>`;modal(html);}
+function editOneRoutine(id){
+  const b=routines.find(x=>x.id===id);
+  if(!b)return;
+  let html=`<h2>Edit ${b.name}</h2><textarea id="rpaste" placeholder="Paste one item per line" style="height:80px;margin-bottom:8px"></textarea><button class="small btn" onclick="const lines=document.getElementById('rpaste').value.split('\\n').map(s=>s.trim()).filter(Boolean);const r=routines.find(x=>x.id===${id});r.items=(r.items||[]).concat(lines);saveSet();editOneRoutine(${id})">Paste items</button><hr>`;
+  (b.items||[]).forEach((item,j)=>{
+    html+=`<div style="display:flex;gap:4px;align-items:center;margin:4px 0"><input style="flex:1" value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value;saveSet()"><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}>0){const t=r.items[${j}];r.items[${j}]=r.items[${j}-1];r.items[${j}-1]=t;saveSet();editOneRoutine(${id})}">↑</button><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}<r.items.length-1){const t=r.items[${j}];r.items[${j}]=r.items[${j}+1];r.items[${j}+1]=t;saveSet();editOneRoutine(${id})}">↓</button></div>`;
+  });
+  html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');saveSet();editOneRoutine(${id})">+ Item</button><button class="btn btn-main" onclick="saveSet();document.getElementById('modal').classList.add('hide');go('routines')">Save</button>`;
+  modal(html);
+}
 
 function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'}" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div></div>`;}
 
@@ -555,20 +632,17 @@ function bind(){document.querySelectorAll('input[data-id]').forEach(c=>c.onchang
     it.completions=it.completions||{};
     it.completions = it.completions || {}; it.completions[todayKey]='done';
     if(it.recurrence){
-      const d=new Date(it.due||Date.now());
-      if(it.recurrence==='daily')d.setDate(d.getDate()+1);
-      else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
-      else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
-      else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
-      else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
-        const n=it.recEvery||1;
-        if(it.recPeriod==='days')d.setDate(d.getDate()+n);
-        else if(it.recPeriod==='weeks')d.setDate(d.getDate()+n*7);
-        else if(it.recPeriod==='months')d.setMonth(d.getMonth()+n);
-        else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()+n);
+      if(it.recurrence==='custom'){
+        advanceCustom(it);
+      } else {
+        const d=new Date(it.due||Date.now());
+        if(it.recurrence==='daily')d.setDate(d.getDate()+1);
+        else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
+        else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
+        else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
+        it.due=d.toISOString().slice(0,10);
       }
-      it.due=d.toISOString().slice(0,10);
-      it.done=false; // stays open for next occurrence
+      it.done=false;
     } else {
       it.done=true;
     }
@@ -610,7 +684,7 @@ async function renderList(el,type){let items=(await all('items')).filter(i=>i.ty
       else if (i.due <= eoy) groups[now.getFullYear()].push(i);
       else groups.Later.push(i);
     });
-    const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date']; for (const name of order) { const list=groups[name]; if(!list) continue; if(settings.secSort==='cat') list.sort((a,b)=>(a.cat||'zzz').localeCompare(b.cat||'zzz')); else if(settings.secSort==='alpha') list.sort((a,b)=>a.title.localeCompare(b.title)); else if(settings.secSort==='due') list.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999')); if (list.length) body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+list.map(row).join('')+'</div></div>'; }
+    const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date']; for (const name of order) { const list=groups[name]; if(!list) continue; list.sort((a,b)=>{const ad=a.done?1:0, bd=b.done?1:0; if(ad!==bd) return ad-bd; if(settings.secSort==='cat') return (a.cat||'zzz').localeCompare(b.cat||'zzz'); if(settings.secSort==='alpha') return a.title.localeCompare(b.title); return (a.due||'9999').localeCompare(b.due||'9999');}); if (list.length) body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+list.map(row).join('')+'</div></div>'; }
   } else body = items.map(row).join('');
   el.innerHTML=`<div class="sec">${extra}<br><br>${body||'<p>None</p>'}</div>`;}bind(); applyTaskCollapsed(); setTimeout(populateTagFilter,30);}
 
@@ -1065,7 +1139,7 @@ async function delProject(id){
 }
 async function renderResources(el){
   const rs = (await all('resources')).sort((a,b)=>(a.order||0)-(b.order||0) || (b.lastOpened||0)-(a.lastOpened||0));
-  let html = '<div class="sec"><button class="small btn" onclick="settings.resBoard=!settings.resBoard;saveSet();go(\'resources\')">'+(settings.resBoard?'List':'Board')+'</button> <button class="small btn" onclick="settings.showAddRes=!settings.showAddRes;saveSet();go(\'resources\')">'+(settings.showAddRes?'Cancel':'New resource')+'</button>';
+  let html = '<div class="sec"><button class="small btn" onclick="settings.resBoard=!settings.resBoard;saveSet();go(\'resources\')">'+(settings.resBoard?'List':'Board')+'</button>';
   if(settings.showAddRes) html += '<div style="margin-top:8px;padding:8px;border:1px solid var(--border);border-radius:10px"><input id="rt" placeholder="Title"><input id="ru" placeholder="URL"><label>Colour</label><input id="rcol" type="color" value="#6b7280"><input id="rsec" placeholder="Section (optional)"><input id="rimg" placeholder="Image URL (optional)"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById(\'rimg\').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="add(\'resources\',{title:document.getElementById(\'rt\').value,url:document.getElementById(\'ru\').value,color:document.getElementById(\'rcol\').value,image:document.getElementById(\'rimg\').value,section:document.getElementById(\'rsec\').value||\'General\',created:Date.now()}).then(()=>{settings.showAddRes=false;saveSet();go(\'resources\');})">Add</button></div>';
   if (settings.resBoard) {
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-top:8px">';
@@ -1086,7 +1160,7 @@ async function renderResources(el){
       html += '</div></div>';
     });
   }
-  html += '</div>';
+  html += '</div><button class="btn'+(settings.showAddRes?'" style="background:#666;margin-top:16px;width:100%"':' btn-main" style="margin-top:16px;width:100%"')+' onclick="settings.showAddRes=!settings.showAddRes;saveSet();go(\'resources\')">'+(settings.showAddRes?'Cancel':'＋ New resource')+'</button>';
   el.innerHTML = html; if(settings.collapsed){Object.keys(settings.collapsed).forEach(k=>{if(k.startsWith('res-')&&settings.collapsed[k]){document.querySelectorAll('.sec-h').forEach(el=>{if(el.textContent.trim()===k.slice(4))el.nextElementSibling.style.display='none';});}});} 
 }
 async function moveResource(id, dir){
@@ -1104,6 +1178,15 @@ async function moveResource(id, dir){
   await put('resources', a);
   await put('resources', b);
   go('resources');
+}
+async function openResource(id){
+  const rs = await all('resources');
+  const r = rs.find(x=>x.id==id);
+  if(!r) return;
+  r.lastOpened = Date.now();
+  await put('resources', r);
+  if(r.url) window.open(r.url, '_blank');
+  else editResource(id);
 }
 async function editResource(id){const rs=await all('resources');const r=rs.find(x=>x.id==id);if(!r)return;modal(`<h2>Edit Resource</h2><input id="ert" value="${(r.title||'').replace(/"/g,'"')}"><input id="eru" value="${r.url||''}" placeholder="URL"><label>Colour</label><input id="ercol" type="color" value="${r.color||'#6b7280'}"><input id="ersec" value="${r.section||'General'}" placeholder="Section"><input id="erimg" value="${r.image||''}" placeholder="Image URL"><label>Or upload image</label><input type="file" accept="image/*" onchange="const f=this.files[0];if(f){const r=new FileReader();r.onload=()=>{document.getElementById('erimg').value=r.result;};r.readAsDataURL(f);}"><button class="btn btn-main" onclick="saveResource(${id})">Save</button><button class="btn" style="background:#ef4444" onclick="deleteResource(${id})">Delete</button>`);}
 async function saveResource(id){ const rs=await all('resources'); const r=rs.find(x=>x.id==id); if(!r) return; r.title=document.getElementById('ert').value; r.url=document.getElementById('eru').value; r.color=document.getElementById('ercol').value; r.image=document.getElementById('erimg').value; r.section=document.getElementById('ersec').value||'General'; await put('resources',r); document.getElementById('modal').classList.add('hide'); go('resources'); }
@@ -1166,8 +1249,7 @@ async function renderInsights(el){
   el.innerHTML = '<h2>Insights</h2>' +
     '<div style="margin:8px 0"><button class="small btn'+(range==='all'?' active':'')+'" onclick="settings.insRange=\'all\';saveSet();go(\'ins\')">All</button> <button class="small btn'+(range==='week'?' active':'')+'" onclick="settings.insRange=\'week\';saveSet();go(\'ins\')">This week</button> <button class="small btn'+(range==='month'?' active':'')+'" onclick="settings.insRange=\'month\';saveSet();go(\'ins\')">This month</button> <button class="small btn'+(range==='day'?' active':'')+'" onclick="settings.insRange=\'day\';saveSet();go(\'ins\')">Today</button></div>' +
     '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">Completed by category</div><div class="sec-body">'+(cats.length?pie:'<p>Nothing completed yet</p>')+'</div></div>' +
-    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">Habit consistency</div><div class="sec-body">'+(habitHtml||'<p>No habits</p>')+'</div></div>' +
-    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">What’s working</div><div class="sec-body"><p>'+working+'</p></div></div>';
+    '<div class="sec"><div class="sec-h" onclick="toggleSec(this)" style="font-weight:600">Habit consistency</div><div class="sec-body">'+(habitHtml||'<p>No habits</p>')+'</div></div>';
 }
 
 async function renderReview(el){
@@ -1220,12 +1302,12 @@ async function manageCategories(){
 
 function renderMore(el){el.innerHTML=`<div class="sec" style="padding-top:12vh;display:flex;flex-direction:column;align-items:center">
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:360px">
-<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('review')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>Insights</button>
-<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('routines')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Routines</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('projects')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>Projects</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="manageCategories()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1"/></svg>Categories</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('resources')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>Resources</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('routines')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Routines</button>
 <button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('ideas')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M9 18h6M10 22h4M12 2a7 7 0 00-4 12.5V16a1 1 0 001 1h6a1 1 0 001-1v-1.5A7 7 0 0012 2z"/></svg>Ideas</button>
+<button class="btn" style="height:72px;border-radius:16px;font-size:1.05rem;padding:12px 8px" onclick="go('review')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>Insights</button>
 </div>
 <button class="btn" style="width:100%;max-width:360px;margin-top:12px;height:72px;border-radius:16px;font-size:1.05rem;padding:12px" onclick="showSet()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Settings</button>
 </div>`;}
