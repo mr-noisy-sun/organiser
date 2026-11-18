@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.62</title>
+<title>Organiser v27.63</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -85,7 +85,7 @@ input[type=date], input[type=color] { height:44px; }
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.62</div>
+<div id="ver">v27.63</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -1428,31 +1428,7 @@ async function exportData(){
   a.download = 'organiser-backup.json';
   a.click();
 }
-async function seed(){
-  const today = new Date().toISOString().slice(0,10);
-  const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
-  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
-  const dayAfter = new Date(Date.now()+2*86400000).toISOString().slice(0,10);
-  const nextWeek = new Date(Date.now()+7*86400000).toISOString().slice(0,10);
-  // Categories
-  await add('items',{title:'(category placeholder)',type:'task',cat:'Health',done:true,color:'#00B913',created:Date.now()});
-  await add('items',{title:'(category placeholder)',type:'task',cat:'Work',done:true,color:'#3A87FE',created:Date.now()});
-  await add('items',{title:'(category placeholder)',type:'task',cat:'Home',done:true,color:'#F59E0B',created:Date.now()});
-  // Habits
-  await add('items',{title:'Morning stretch',type:'task',due:today,recurrence:'daily',done:false,color:'#00B913',cat:'Health',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
-  await add('items',{title:'Read 20 mins',type:'task',due:yesterday,recurrence:'daily',done:false,color:'#3A87FE',cat:'Work',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
-  await add('items',{title:'Water plants',type:'task',due:tomorrow,recurrence:'weekly',done:false,color:'#F59E0B',cat:'Home',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
-  await add('items',{title:'Deep clean kitchen',type:'task',due:nextWeek,recurrence:'monthly',done:false,color:'#A855F7',cat:'Home',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
-  // One-offs for sorting / completed test
-  await add('items',{title:'Buy milk',type:'task',due:today,done:false,color:'#06B6D4',cat:'Home',showInToday:true});
-  await add('items',{title:'Call dentist',type:'task',due:yesterday,done:true,color:'#8B5CF6',cat:'Health',showInToday:true});
-  await add('items',{title:'Finish report',type:'task',due:dayAfter,done:false,color:'#EC4899',cat:'Work',showInToday:true});
-  // Notes
-  await add('notes',{title:'Shopping list',body:'Milk, eggs, bread',color:'#00B913',created:Date.now(),updated:Date.now()});
-  await add('notes',{title:'Meeting notes',body:'Discuss Q4 goals',color:'#0061FC',created:Date.now(),updated:Date.now()});
-  settings.catColors = {'Health':'#00B913','Work':'#3A87FE','Home':'#F59E0B'};
-  saveSet();
-}
+async function seed(){}
 init();
 </script>
 </body>
