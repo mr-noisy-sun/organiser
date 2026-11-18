@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.56</title>
+<title>Organiser v27.62</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -85,7 +85,7 @@ input[type=date], input[type=color] { height:44px; }
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.56</div>
+<div id="ver">v27.62</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -101,31 +101,27 @@ const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open(DB,2);r.onerror=
 async function processOverdueHabits(){
   const items = await all('items');
   const today = new Date().toISOString().slice(0,10);
-  let changed = false;
   for(const it of items){
+    // Convert any remaining custom to weekly
+    if(it.recurrence === 'custom'){
+      it.recurrence = 'weekly';
+      delete it.recEvery;
+      delete it.recPeriod;
+      delete it.recTimes;
+      await put('items', it);
+    }
     if(!it.trackHabit || !it.due || !it.recurrence || it.due >= today) continue;
-    // Missed: record as skipped and advance
     it.completions = it.completions || {};
     if(!it.completions[it.due]) it.completions[it.due] = 'skip';
-    // Advance due date
     const d = new Date(it.due);
     if(it.recurrence==='daily') d.setDate(d.getDate()+1);
     else if(it.recurrence==='weekly') d.setDate(d.getDate()+7);
     else if(it.recurrence==='monthly') d.setMonth(d.getMonth()+1);
     else if(it.recurrence==='yearly') d.setFullYear(d.getFullYear()+1);
-    else if(it.recurrence==='custom' && it.recEvery && it.recPeriod){
-      const n = it.recEvery || 1;
-      if(it.recPeriod==='days') d.setDate(d.getDate()+n);
-      else if(it.recPeriod==='weeks') d.setDate(d.getDate()+n*7);
-      else if(it.recPeriod==='months') d.setMonth(d.getMonth()+n);
-      else if(it.recPeriod==='years') d.setFullYear(d.getFullYear()+n);
-    }
     it.due = d.toISOString().slice(0,10);
     it.done = false;
     await put('items', it);
-    changed = true;
   }
-  return changed;
 }
 async function init(){db=await openDB();await loadSet();applyTheme();document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');go(b.dataset.p);});document.getElementById('add').onclick=quickAdd;document.getElementById('search').onclick=inSearch;document.getElementById('lookup').onclick=()=>{const q=prompt('Look up:');if(q){const a=document.createElement('a');a.href=settings.search+encodeURIComponent(q);a.target='_blank';a.rel='noopener';a.click();}};document.getElementById('close').onclick=()=>document.getElementById('modal').classList.add('hide');if((await all('items')).length===0)await seed();await processOverdueHabits();go('today');}
 async function loadSet(){const s=await all('settings');if(s[0]){settings={...settings,...s[0]}; if(Array.isArray(s[0].routines)) routines = s[0].routines; }}
@@ -165,7 +161,7 @@ async function quickAdd(){const items=await all('items');const ps=await all('pro
   modal(`<h2>Quick Add</h2>
     <input id="t" placeholder="Title" autofocus>
     <label>Due date</label><input id="d" type="date">
-    <label>Recurrence</label><select id="rec" onchange="showRecExtra();document.getElementById('thabit').checked=!!this.value;document.getElementById('showcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="custom">X times every X period</option></select><div id="recextra"></div>
+    <label>Recurrence</label><select id="rec" onchange="showRecExtra();document.getElementById('thabit').checked=!!this.value;document.getElementById('showcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select><div id="recextra"></div>
     <div style="display:flex;gap:12px;flex-wrap:wrap">
       <label><input type="checkbox" id="showtoday" checked> My Day</label>
       <label><input type="checkbox" id="remind" onchange="var o=document.getElementById('qremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label>
@@ -331,45 +327,29 @@ async function quickMark(id,date){
   it.completions=it.completions||{};
   const cur=it.completions[date];
   const next=cur==='done'?'skip':cur==='skip'?null:'done';
+  const wasAction = cur==='done' || cur==='skip';
   if(next) it.completions[date]=next; else delete it.completions[date];
   const today=new Date().toISOString().slice(0,10);
-  if(date===today && it.recurrence){
-    if(next==='done' || next==='skip'){
-      if(!it._advancedToday){
-        if(it.recurrence==='custom'){
-          advanceCustom(it);
-        } else {
-          const d=new Date(it.due||Date.now());
-          if(it.recurrence==='daily')d.setDate(d.getDate()+1);
-          else if(it.recurrence==='weekly')d.setDate(d.getDate()+7);
-          else if(it.recurrence==='monthly')d.setMonth(d.getMonth()+1);
-          else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()+1);
-          it.due=d.toISOString().slice(0,10);
-        }
-        it._advancedToday=true;
-      }
-      it.done=false;
-    } else {
-      // incomplete - revert if advanced
-      if(it._advancedToday){
-        const d=new Date(it.due);
-        if(it.recurrence==='daily')d.setDate(d.getDate()-1);
-        else if(it.recurrence==='weekly')d.setDate(d.getDate()-7);
-        else if(it.recurrence==='monthly')d.setMonth(d.getMonth()-1);
-        else if(it.recurrence==='yearly')d.setFullYear(d.getFullYear()-1);
-        else if(it.recurrence==='custom'&&it.recEvery&&it.recPeriod){
-          const n=it.recEvery||1;
-          if(it.recPeriod==='days')d.setDate(d.getDate()-n);
-          else if(it.recPeriod==='weeks')d.setDate(d.getDate()-n*7);
-          else if(it.recPeriod==='months')d.setMonth(d.getMonth()-n);
-          else if(it.recPeriod==='years')d.setFullYear(d.getFullYear()-n);
-        }
-        it.due=d.toISOString().slice(0,10);
-        it._advancedToday=false;
-      }
-      it.done=false;
-    }
-  } else if(date===today && !it.recurrence){
+  // Only advance the first time we mark done or skip for this due date
+  if((date===it.due || date===today) && it.recurrence && (next==='done' || next==='skip') && !wasAction){
+    const d=new Date(it.due || Date.now());
+    if(it.recurrence==='daily') d.setDate(d.getDate()+1);
+    else if(it.recurrence==='weekly') d.setDate(d.getDate()+7);
+    else if(it.recurrence==='monthly') d.setMonth(d.getMonth()+1);
+    else if(it.recurrence==='yearly') d.setFullYear(d.getFullYear()+1);
+    it.due = d.toISOString().slice(0,10);
+    it.done = false;
+    it._advancedFrom = date;
+  } else if(!next && it.recurrence && (date === it.due || date === today)){
+    // Always step back one period when marking incomplete
+    const d = new Date(it.due || Date.now());
+    if(it.recurrence==='daily') d.setDate(d.getDate()-1);
+    else if(it.recurrence==='weekly') d.setDate(d.getDate()-7);
+    else if(it.recurrence==='monthly') d.setMonth(d.getMonth()-1);
+    else if(it.recurrence==='yearly') d.setFullYear(d.getFullYear()-1);
+    it.due = d.toISOString().slice(0,10);
+    delete it._advancedFrom;
+  } else if(!it.recurrence && date===today){
     it.done = next==='done';
   }
   if(next==='done'){const ts=new Date(date).getTime();if(!it.last||ts>it.last)it.last=ts;}
@@ -457,15 +437,35 @@ async function openNote(id){
   const n = notes.find(x=>x.id===id);
   if(!n) return;
   const col = n.color || '#6b7280';
-  modal(`<div style="background:${col};color:#fff;padding:16px;border-radius:12px;min-height:auto">
-    <input id="nt" value="${(n.title||'').replace(/"/g,'"')}" style="background:transparent;border:none;color:#fff;font-size:1.4rem;font-weight:600;width:100%;margin-bottom:12px;outline:none">
-    <textarea id="nb" style="background:transparent;border:none;color:#fff;width:100%;height:36vh;font-size:1rem;resize:vertical;outline:none">${n.body||''}</textarea>
+  modal(`<div style="background:${col};color:#fff;padding:16px;border-radius:12px;min-height:auto;position:relative">
+    <div style="position:absolute;top:12px;right:12px;display:flex;gap:6px">
+      <button class="small btn" style="background:#555;min-width:32px" onclick="noteUndo()" title="Undo">↺</button>
+      <button class="small btn" style="background:#555;min-width:32px" onclick="noteRedo()" title="Redo">↻</button>
+    </div>
+    <input id="nt" value="${(n.title||'').replace(/"/g,'"')}" style="background:transparent;border:none;color:#fff;font-size:1.4rem;font-weight:600;width:calc(100% - 80px);margin-bottom:12px;outline:none">
+    <textarea id="nb" style="background:transparent;border:none;color:#fff;width:100%;height:36vh;font-size:1rem;resize:vertical;outline:none" oninput="noteHistoryPush()">${n.body||''}</textarea>
     <div style="margin-top:16px;display:flex;gap:8px;align-items:center">
       <input id="nc" type="color" value="${col}" style="width:48px;height:36px;padding:0;border:2px solid #000;border-radius:6px;background:transparent">
       <button class="btn btn-main" style="flex:1" onclick="put('notes',{id:${id},title:document.getElementById('nt').value,body:document.getElementById('nb').value,color:document.getElementById('nc').value,created:${n.created||Date.now()},updated:Date.now()}).then(()=>{document.getElementById('modal').classList.add('hide');go('notes');})">Save</button>
       <button class="btn" style="background:#c00;flex:1" onclick="confirmDeleteNote(${id})">Delete</button>
     </div>
   </div>`);
+  window.noteHist = [n.body||'']; window.noteHistIdx = 0;
+}
+function noteHistoryPush(){
+  const ta = document.getElementById('nb'); if(!ta) return;
+  const val = ta.value;
+  if(window.noteHist && window.noteHist[window.noteHistIdx] === val) return;
+  window.noteHist = window.noteHist.slice(0, window.noteHistIdx+1);
+  window.noteHist.push(val);
+  window.noteHistIdx = window.noteHist.length-1;
+  if(window.noteHist.length > 30) window.noteHist.shift();
+}
+function noteUndo(){
+  if(window.noteHistIdx > 0){ window.noteHistIdx--; document.getElementById('nb').value = window.noteHist[window.noteHistIdx]; }
+}
+function noteRedo(){
+  if(window.noteHistIdx < window.noteHist.length-1){ window.noteHistIdx++; document.getElementById('nb').value = window.noteHist[window.noteHistIdx]; }
 }
 async function moveNote(id, dir){
   let notes = await all('notes');
@@ -516,6 +516,32 @@ function advanceCustom(it){
     return true;
   }
 }
+async function moveTask(id, dir){
+  let items = await all('items');
+  items = items.filter(i=>i.type==='task' && !i.title.includes('category placeholder'));
+  const target = items.find(i=>i.id===id);
+  if(!target) return;
+  // When sorting by category + manual, only reorder within the same category
+  let pool = items;
+  if(settings.sort === 'cat' && settings.secSort === 'manual'){
+    pool = items.filter(i => (i.cat||'') === (target.cat||''));
+  }
+  pool.sort((a,b)=>(a.order||0)-(b.order||0));
+  const idx = pool.findIndex(i=>i.id===id);
+  if(idx<0) return;
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=pool.length) return;
+  // Swap within pool
+  const tmp = pool[idx];
+  pool[idx] = pool[newIdx];
+  pool[newIdx] = tmp;
+  // Reassign orders within the pool
+  for(let i=0;i<pool.length;i++){
+    pool[i].order = i;
+    await put('items', pool[i]);
+  }
+  go('tasks');
+}
 function moveInArray(arr, idx, dir){
   const newIdx = idx + dir;
   if(newIdx < 0 || newIdx >= arr.length) return arr;
@@ -547,7 +573,7 @@ function editOneRoutine(id){
   modal(html);
 }
 
-function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'}" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div></div>`;}
+function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');const arrows = ((settings.sort==='manual' || settings.secSort==='manual') && page==='tasks') ? `<div style="display:flex;gap:2px;margin-left:8px"><button class="small btn" style="min-width:28px;padding:2px 6px;background:#555" onclick="event.stopPropagation();moveTask(${i.id},-1)">↑</button><button class="small btn" style="min-width:28px;padding:2px 6px;background:#555" onclick="event.stopPropagation();moveTask(${i.id},1)">↓</button></div>` : '';return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'};display:flex;align-items:center" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner" style="flex:1"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div>${arrows}</div>`;}
 
 function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);if(page==='tasks'||page==='ideas')renderList(document.getElementById('main'),page==='tasks'?'task':'idea');}
 
@@ -561,7 +587,7 @@ async function openItem(id){
   modal(`<h2>Edit</h2>
     <input id="et" value="${(it.title||'').replace(/"/g,'"')}" style="font-weight:700;font-size:1.15rem">
     <label>Due date</label><input id="ed" type="date" value="${it.due||''}">
-    <label>Recurrence</label><select id="erec" onchange="showRecExtra();document.getElementById('eth').checked=!!this.value;document.getElementById('eshowcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily" ${it.recurrence==='daily'?'selected':''}>Daily</option><option value="weekly" ${it.recurrence==='weekly'?'selected':''}>Weekly</option><option value="monthly" ${it.recurrence==='monthly'?'selected':''}>Monthly</option><option value="yearly" ${it.recurrence==='yearly'?'selected':''}>Yearly</option><option value="custom" ${it.recurrence==='custom'?'selected':''}>Custom</option></select><div id="erecextra"></div>
+    <label>Recurrence</label><select id="erec" onchange="showRecExtra();document.getElementById('eth').checked=!!this.value;document.getElementById('eshowcal').checked=!['daily','weekly','2xweek','3xweek'].includes(this.value)"><option value="">None</option><option value="daily" ${it.recurrence==='daily'?'selected':''}>Daily</option><option value="weekly" ${it.recurrence==='weekly'?'selected':''}>Weekly</option><option value="monthly" ${it.recurrence==='monthly'?'selected':''}>Monthly</option><option value="yearly" ${it.recurrence==='yearly'?'selected':''}>Yearly</option></select><div id="erecextra"></div>
     
     <div style="display:flex;gap:12px;flex-wrap:wrap"><label><input type="checkbox" id="eshowtoday" ${it.showInToday!==false?'checked':''}> My Day</label><label><input type="checkbox" id="eremind" ${it.reminder?'checked':''} onchange="var o=document.getElementById('eremopts');if(o)o.style.display=this.checked?'block':'none'"> Reminder</label><label><input type="checkbox" id="eshowcal" ${it.showInCal!==false?'checked':''}> Calendar</label><label><input type="checkbox" id="eth" ${it.trackHabit?'checked':''}> Habit</label></div><div id="eremopts" style="display:${it.reminder?'block':'none'}"><select id="erem1"><option value="">None</option><option value="0d">On the day</option><option value="1d" ${it.rem1==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem1==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem1==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem1==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem1==='28d'?'selected':''}>4 weeks before</option></select><select id="erem2"><option value="">None</option><option value="0d" ${it.rem2==='0d'?'selected':''}>On the day</option><option value="1d" ${it.rem2==='1d'?'selected':''}>1 day before</option><option value="2d" ${it.rem2==='2d'?'selected':''}>2 days before</option><option value="7d" ${it.rem2==='7d'?'selected':''}>1 week before</option><option value="14d" ${it.rem2==='14d'?'selected':''}>2 weeks before</option><option value="28d" ${it.rem2==='28d'?'selected':''}>4 weeks before</option></select></div>
     <label>Category</label><input id="ecat" list="ecatlist" value="${it.cat||''}"><datalist id="ecatlist"></datalist>
@@ -663,7 +689,7 @@ async function populateTagFilter(){
   settings.selectedTags = settings.selectedTags || [];
   box.innerHTML = tags.map(t=>`<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><input type="checkbox" style="width:20px;height:20px;margin:0" ${settings.selectedTags.includes(t)?'checked':''} onchange="if(this.checked){settings.selectedTags=settings.selectedTags||[];if(!settings.selectedTags.includes('${t}'))settings.selectedTags.push('${t}');}else{settings.selectedTags=(settings.selectedTags||[]).filter(x=>x!=='${t}');}saveSet();go(page)"> <span>${t}</span></div>`).join('') || '<span style="color:var(--text-sec)">No tags yet</span>';
 }
-async function renderList(el,type){let items=(await all('items')).filter(i=>i.type===type && !i.title.includes('category placeholder') && (settings.habitFilter==='habits'?i.trackHabit:settings.habitFilter==='oneoff'?!i.trackHabit:true) && (!settings.selectedTags||!settings.selectedTags.length || (i.tags||[]).some(t=>settings.selectedTags.includes(t))));if(settings.sort==='alpha'){items.sort((a,b)=>{if(settings.secSort==='cat'){const c=(a.cat||'').localeCompare(b.cat||'');if(c)return c;}else if(settings.secSort==='due'){const d=(a.due||'9999').localeCompare(b.due||'9999');if(d)return d;}return a.title.localeCompare(b.title);});}else if(settings.sort==='cat'){items.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')|| (settings.secSort==='alpha'?a.title.localeCompare(b.title):(settings.secSort==='due'?(a.due||'9999').localeCompare(b.due||'9999'):0)) );}else items.sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.due||'9999').localeCompare(b.due||'9999'));let extra=`<div id="sortwrap" style="display:${settings.showSort?'block':'none'};margin-bottom:8px"><select class="small" onchange="settings.sort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.sort==='due'?'selected':''}>Group by date</option><option value="cat" ${settings.sort==='cat'?'selected':''}>Group by category</option><option value="alpha" ${settings.sort==='alpha'?'selected':''}>A–Z</option></select> <select class="small" onchange="settings.secSort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.secSort==='due'?'selected':''}>Then by date</option><option value="cat" ${settings.secSort==='cat'?'selected':''}>Then by category</option><option value="alpha" ${settings.secSort==='alpha'?'selected':''}>Then A–Z</option></select></div>`;if(selectMode)extra+=`<button class="small btn" onclick="selectMode=false;selected.clear();go(page)">Done</button> `;else extra+=`<button class="small btn" onclick="settings.habitFilter=(settings.habitFilter||'all')==='all'?'oneoff':settings.habitFilter==='oneoff'?'habits':'all';saveSet();go(page)">${(settings.habitFilter||'all')==='all'?'All':settings.habitFilter==='oneoff'?'One-off':'Habits'}</button> <button class="small btn" onclick="settings.showTagFilter=!settings.showTagFilter;saveSet();go(page)">Tags</button> <button class="small btn" onclick="settings.showSort=!settings.showSort;saveSet();go(page)">Sort</button> <button class="small btn" onclick="settings.taskBoard=!settings.taskBoard;saveSet();go(page)">${settings.taskBoard?'List':'Board'}</button> <button class="small btn" onclick="showPasteModal()">Paste</button> <button class="small btn" onclick="selectMode=true;go(page)">Select</button> <div id="tagfilterbox" style="display:${settings.showTagFilter?'block':'none'};margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:8px;width:100%"></div>`;if(selected.size && selectMode)extra+=`<div style="margin-top:6px"><button class="small btn" style="background:#555" onclick="bulkResched()">Reschedule</button> <button class="small btn" style="background:#555" onclick="bulkComplete()">Complete</button> <button class="small btn" style="background:#555" onclick="bulkIncomplete()">Incomplete</button> <button class="small btn" style="background:#555" onclick="bulkEdit()">Bulk edit</button> <button class="small btn" style="background:#c00" onclick="bulkDelete()">Delete</button></div>`;if(settings.taskBoard && type==='task'){el.innerHTML=`<div class="sec">${extra}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;row-gap:12px">${items.map(i=>`<div class="item" style="--c:${i.color};height:100px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px" onclick="openItem(${i.id})"><div class="t">${i.title}</div></div>`).join('')}</div></div>`;}else if(settings.sort==='cat'){
+async function renderList(el,type){let items=(await all('items')).filter(i=>i.type===type && !i.title.includes('category placeholder') && (settings.habitFilter==='habits'?i.trackHabit:settings.habitFilter==='oneoff'?!i.trackHabit:true) && (!settings.selectedTags||!settings.selectedTags.length || (i.tags||[]).some(t=>settings.selectedTags.includes(t))));if(settings.sort==='alpha'){items.sort((a,b)=>{if(settings.secSort==='cat'){const c=(a.cat||'').localeCompare(b.cat||'');if(c)return c;}else if(settings.secSort==='due'){const d=(a.due||'9999').localeCompare(b.due||'9999');if(d)return d;}return a.title.localeCompare(b.title);});}else if(settings.sort==='cat'){items.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')|| (settings.secSort==='manual'?(a.order||0)-(b.order||0):(settings.secSort==='alpha'?a.title.localeCompare(b.title):(settings.secSort==='due'?(a.due||'9999').localeCompare(b.due||'9999'):0))) );}else if(settings.sort==='manual'){items.sort((a,b)=>(a.order||0)-(b.order||0));}else items.sort((a,b)=>(a.done?1:0)-(b.done?1:0)||(a.due||'9999').localeCompare(b.due||'9999'));let extra=`<div id="sortwrap" style="display:${settings.showSort?'block':'none'};margin-bottom:8px"><select class="small" onchange="settings.sort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.sort==='due'?'selected':''}>Group by date</option><option value="cat" ${settings.sort==='cat'?'selected':''}>Group by category</option><option value="alpha" ${settings.sort==='alpha'?'selected':''}>A–Z</option><option value="manual" ${settings.sort==='manual'?'selected':''}>Manual</option></select> <select class="small" onchange="settings.secSort=this.value;saveSet();go(page)" style="width:auto;padding:6px 8px;font-size:0.85rem"><option value="due" ${settings.secSort==='due'?'selected':''}>Then by date</option><option value="cat" ${settings.secSort==='cat'?'selected':''}>Then by category</option><option value="alpha" ${settings.secSort==='alpha'?'selected':''}>Then A–Z</option><option value="manual" ${settings.secSort==='manual'?'selected':''}>Then manual</option></select></div>`;if(selectMode)extra+=`<button class="small btn" onclick="selectMode=false;selected.clear();go(page)">Done</button> `;else extra+=`<button class="small btn" onclick="settings.habitFilter=(settings.habitFilter||'all')==='all'?'oneoff':settings.habitFilter==='oneoff'?'habits':'all';saveSet();go(page)">${(settings.habitFilter||'all')==='all'?'All':settings.habitFilter==='oneoff'?'One-off':'Habits'}</button> <button class="small btn" onclick="settings.showTagFilter=!settings.showTagFilter;saveSet();go(page)">Tags</button> <button class="small btn" onclick="settings.showSort=!settings.showSort;saveSet();go(page)">Sort</button> <button class="small btn" onclick="settings.taskBoard=!settings.taskBoard;saveSet();go(page)">${settings.taskBoard?'List':'Board'}</button> <button class="small btn" onclick="showPasteModal()">Paste</button> <button class="small btn" onclick="selectMode=true;go(page)">Select</button> <div id="tagfilterbox" style="display:${settings.showTagFilter?'block':'none'};margin:8px 0;padding:8px;border:1px solid var(--border);border-radius:8px;width:100%"></div>`;if(selected.size && selectMode)extra+=`<div style="margin-top:6px"><button class="small btn" style="background:#555" onclick="bulkResched()">Reschedule</button> <button class="small btn" style="background:#555" onclick="bulkComplete()">Complete</button> <button class="small btn" style="background:#555" onclick="bulkIncomplete()">Incomplete</button> <button class="small btn" style="background:#555" onclick="bulkEdit()">Bulk edit</button> <button class="small btn" style="background:#c00" onclick="bulkDelete()">Delete</button></div>`;if(settings.taskBoard && type==='task'){el.innerHTML=`<div class="sec">${extra}<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;row-gap:12px">${items.map(i=>`<div class="item" style="--c:${i.color};height:100px;display:flex;align-items:center;justify-content:center;text-align:center;padding:12px" onclick="openItem(${i.id})"><div class="t">${i.title}</div></div>`).join('')}</div></div>`;}else if(settings.sort==='cat'){
     const groups={};
     items.forEach(i=>{const c=i.cat||'None';(groups[c]=groups[c]||[]).push(i);});
     let body='';
@@ -672,19 +698,20 @@ async function renderList(el,type){let items=(await all('items')).filter(i=>i.ty
     });
     el.innerHTML='<div class="sec">'+extra+body+'</div>';
     if(settings.collapsed){Object.keys(settings.collapsed).forEach(k=>{if(k.startsWith('task-')&&settings.collapsed[k]){document.querySelectorAll('.sec-h').forEach(el=>{if(el.textContent.trim()===k.slice(5))el.nextElementSibling.style.display='none';});}});}
-  }else{ const today=new Date().toISOString().slice(0,10); const ov=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly'].includes(i.recurrence||'')); const ovIds=new Set(ov.map(i=>i.id)); const rest=items.filter(i=>!ovIds.has(i.id)); let body=''; if(ov.length){ body+='<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">Overdue</div><div class="sec-body">'+ov.map(row).join('')+'</div></div>'; } if (settings.sort === 'due' && type === 'task') {
+  }else{ const today=new Date().toISOString().slice(0,10); const ov=items.filter(i=>i.due&&i.due<today&&!i.done&&!['daily','weekly','monthly','yearly'].includes(i.recurrence||'')); const ovIds=new Set(ov.map(i=>i.id)); const rest=items.filter(i=>!ovIds.has(i.id)); let body=''; if(ov.length){ body+='<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">Overdue</div><div class="sec-body">'+ov.map(row).join('')+'</div></div>'; } if (settings.sort === 'due' && type === 'task') {
     const today = new Date().toISOString().slice(0,10);
-    const now=new Date(); const todayS=now.toISOString().slice(0,10); const tom=new Date(now.getTime()+86400000).toISOString().slice(0,10); const sun=new Date(now); sun.setDate(now.getDate()+(7-now.getDay())%7); const sunS=sun.toISOString().slice(0,10); const eom=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().slice(0,10); const eoy=now.getFullYear()+'-12-31'; const groups={Today:[],Tomorrow:[],'This week':[],'This month':[],[now.getFullYear()]:[],'Later':[],'No date':[]};
+    const now=new Date(); const todayS=now.toISOString().slice(0,10); const tom=new Date(now.getTime()+86400000).toISOString().slice(0,10); const dayAfterTom=new Date(now.getTime()+2*86400000).toISOString().slice(0,10); const sun=new Date(now); sun.setDate(now.getDate()+(7-now.getDay())%7); const sunS=sun.toISOString().slice(0,10); const eom=new Date(now.getFullYear(),now.getMonth()+1,0).toISOString().slice(0,10); const eoy=now.getFullYear()+'-12-31'; const groups={Today:[],Tomorrow:[],'This week':[],'This month':[],[now.getFullYear()]:[],'Later':[],'No date':[],Completed:[]};
     if(settings.secSort==='cat') rest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') rest.sort((a,b)=>a.title.localeCompare(b.title)); var sortedRest = rest.slice(); if(settings.secSort==='cat') sortedRest.sort((a,b)=>(a.cat||'').localeCompare(b.cat||'')); else if(settings.secSort==='alpha') sortedRest.sort((a,b)=>a.title.localeCompare(b.title)); sortedRest.forEach(i => {
+      if(i.done && !i.recurrence) { groups.Completed.push(i); return; }
       if (!i.due) groups['No date'].push(i);
       else if (i.due === todayS) groups.Today.push(i);
       else if (i.due === tom) groups.Tomorrow.push(i);
-      else if (i.due <= sunS) groups['This week'].push(i);
+      else if (i.due >= dayAfterTom && i.due <= sunS) groups['This week'].push(i);
       else if (i.due <= eom) groups['This month'].push(i);
       else if (i.due <= eoy) groups[now.getFullYear()].push(i);
       else groups.Later.push(i);
     });
-    const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date']; for (const name of order) { const list=groups[name]; if(!list) continue; list.sort((a,b)=>{const ad=a.done?1:0, bd=b.done?1:0; if(ad!==bd) return ad-bd; if(settings.secSort==='cat') return (a.cat||'zzz').localeCompare(b.cat||'zzz'); if(settings.secSort==='alpha') return a.title.localeCompare(b.title); return (a.due||'9999').localeCompare(b.due||'9999');}); if (list.length) body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+list.map(row).join('')+'</div></div>'; }
+    const order=['Today','Tomorrow','This week','This month',now.getFullYear(),'Later','No date','Completed']; for (const name of order) { const list=groups[name]; if(!list) continue; list.sort((a,b)=>{const ad=a.done?1:0, bd=b.done?1:0; if(ad!==bd) return ad-bd; if(settings.secSort==='cat') return (a.cat||'zzz').localeCompare(b.cat||'zzz'); if(settings.secSort==='alpha') return a.title.localeCompare(b.title); if(settings.secSort==='manual') return (a.order||0)-(b.order||0); return (a.due||'9999').localeCompare(b.due||'9999');}); if (list.length) { const isCompleted = name==='Completed'; const showCount = isCompleted ? (settings.completedShow || 20) : list.length; const visible = list.slice(0, showCount); body += '<div class="sec"><div class="sec-h" onclick="var b=this.nextElementSibling;b.style.display=b.style.display===\'none\'?\'block\':\'none\';settings.collapsed=settings.collapsed||{};settings.collapsed[\'task-\'+this.textContent.trim()]=b.style.display===\'none\';saveSet();" style="font-weight:600;font-size:1.15rem;margin-top:8px;padding:6px 0">'+name+'</div><div class="sec-body">'+(isCompleted && settings.collapsed && settings.collapsed['task-Completed'] ? '' : visible.map(row).join('') + (isCompleted && list.length>showCount ? '<button class="small btn" onclick="settings.completedShow=(settings.completedShow||20)+20;saveSet();go(\'tasks\')">Load more</button>' : ''))+'</div></div>'; } }
   } else body = items.map(row).join('');
   el.innerHTML=`<div class="sec">${extra}<br><br>${body||'<p>None</p>'}</div>`;}bind(); applyTaskCollapsed(); setTimeout(populateTagFilter,30);}
 
@@ -1401,7 +1428,31 @@ async function exportData(){
   a.download = 'organiser-backup.json';
   a.click();
 }
-async function seed(){}
+async function seed(){
+  const today = new Date().toISOString().slice(0,10);
+  const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+  const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+  const dayAfter = new Date(Date.now()+2*86400000).toISOString().slice(0,10);
+  const nextWeek = new Date(Date.now()+7*86400000).toISOString().slice(0,10);
+  // Categories
+  await add('items',{title:'(category placeholder)',type:'task',cat:'Health',done:true,color:'#00B913',created:Date.now()});
+  await add('items',{title:'(category placeholder)',type:'task',cat:'Work',done:true,color:'#3A87FE',created:Date.now()});
+  await add('items',{title:'(category placeholder)',type:'task',cat:'Home',done:true,color:'#F59E0B',created:Date.now()});
+  // Habits
+  await add('items',{title:'Morning stretch',type:'task',due:today,recurrence:'daily',done:false,color:'#00B913',cat:'Health',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
+  await add('items',{title:'Read 20 mins',type:'task',due:yesterday,recurrence:'daily',done:false,color:'#3A87FE',cat:'Work',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
+  await add('items',{title:'Water plants',type:'task',due:tomorrow,recurrence:'weekly',done:false,color:'#F59E0B',cat:'Home',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
+  await add('items',{title:'Deep clean kitchen',type:'task',due:nextWeek,recurrence:'monthly',done:false,color:'#A855F7',cat:'Home',trackHabit:true,showInToday:true,showInCal:true,completions:{}});
+  // One-offs for sorting / completed test
+  await add('items',{title:'Buy milk',type:'task',due:today,done:false,color:'#06B6D4',cat:'Home',showInToday:true});
+  await add('items',{title:'Call dentist',type:'task',due:yesterday,done:true,color:'#8B5CF6',cat:'Health',showInToday:true});
+  await add('items',{title:'Finish report',type:'task',due:dayAfter,done:false,color:'#EC4899',cat:'Work',showInToday:true});
+  // Notes
+  await add('notes',{title:'Shopping list',body:'Milk, eggs, bread',color:'#00B913',created:Date.now(),updated:Date.now()});
+  await add('notes',{title:'Meeting notes',body:'Discuss Q4 goals',color:'#0061FC',created:Date.now(),updated:Date.now()});
+  settings.catColors = {'Health':'#00B913','Work':'#3A87FE','Home':'#F59E0B'};
+  saveSet();
+}
 init();
 </script>
 </body>
