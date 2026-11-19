@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.73</title>
+<title>Organiser v27.74</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -85,7 +85,7 @@ input[type=date], input[type=color] { height:44px; }
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.73</div>
+<div id="ver">v27.74</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -424,6 +424,7 @@ async function markHabit(id, status){
 async function renderNotes(el){
   const notes = await all('notes');
   const board = settings.notesBoard;
+  const strip = s => (s||'').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').trim();
   let html = '<div class="sec"><button class="small btn" onclick="settings.notesBoard=!settings.notesBoard;saveSet();go(\'notes\')">'+(board?'List':'Board')+'</button> <select class="small" onchange="settings.notesSort=this.value;saveSet();renderNotes(document.getElementById(\'main\'))" style="width:auto"><option value="updated" '+(settings.notesSort!=='alpha'&&settings.notesSort!=='manual'?'selected':'')+'>Last updated</option><option value="alpha" '+(settings.notesSort==='alpha'?'selected':'')+'>A–Z</option><option value="manual" '+(settings.notesSort==='manual'?'selected':'')+'>Manual</option></select></div>';
   if(!notes.length) html += '<p style="color:var(--text-sec);padding:8px 0">Add a note</p>';
   else if(board){
@@ -434,7 +435,8 @@ async function renderNotes(el){
       return (b.updated||b.created)-(a.updated||a.created);
     });
     sorted.forEach(n=>{
-      html += `<div class="item" style="--c:${n.color||'#6b7280'};min-height:100px;padding:12px;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box" onclick="openNote(${n.id})"><div class="t" style="font-size:0.95rem;font-weight:600;margin-bottom:4px">${n.title||'Untitled'}</div><div class="m" style="font-size:0.75rem;opacity:0.9;flex:1">${(n.body||'').slice(0,80)}</div></div>`;
+      const preview = strip(n.body).slice(0,80);
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};min-height:100px;padding:12px;display:flex;flex-direction:column;justify-content:flex-start;box-sizing:border-box" onclick="openNote(${n.id})"><div class="t" style="font-size:0.95rem;font-weight:600;margin-bottom:4px">${n.title||'Untitled'}</div><div class="m" style="font-size:0.75rem;opacity:0.9;flex:1">${preview}</div></div>`;
     });
     html += '</div>';
   } else {
@@ -445,7 +447,8 @@ async function renderNotes(el){
       return (b.updated||b.created)-(a.updated||a.created);
     });
     sorted.forEach(n=>{
-      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:10px" onclick="openNote(${n.id})"><div style="flex:1;min-width:0"><div class="t">${n.title||'Untitled'}</div><div class="m">${(n.body||'').slice(0,80)}${(n.body||'').length>80?'…':''}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</button><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</button></div></div>`;
+      const preview = strip(n.body).slice(0,80);
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:10px" onclick="openNote(${n.id})"><div style="flex:1;min-width:0"><div class="t">${n.title||'Untitled'}</div><div class="m">${preview}${preview.length>=80?'…':''}</div></div><div style="display:flex;gap:4px;flex-shrink:0"><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</button><button class="small btn" style="min-width:32px;padding:4px 8px;background:#555;color:#fff" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</button></div></div>`;
     });
     html += '</div>';
   }
