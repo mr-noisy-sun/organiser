@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v28.00</title>
+<title>Organiser v28.08</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -85,7 +85,7 @@ input[type=date], input[type=color] { height:44px; }
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v28.00</div>
+<div id="ver">v28.08</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -161,7 +161,24 @@ function showRecExtra(){
   else if(v==='custom'){const t=(window._cur&&window._cur.recTimes)||2;const e=(window._cur&&window._cur.recEvery)||1;const p=(window._cur&&window._cur.recPeriod)||'days';el.innerHTML = `<label>Times</label><input id="rectimes" type="number" min="1" value="${t}"><label>Every</label><input id="recevery" type="number" min="1" value="${e}"><select id="recperiod"><option ${p==='days'?'selected':''}>days</option><option ${p==='weeks'?'selected':''}>weeks</option><option ${p==='months'?'selected':''}>months</option><option ${p==='years'?'selected':''}>years</option></select>`;}
   else el.innerHTML = '';
 }
-async function quickAdd(){const items=await all('items');const ps=await all('projects');const cats=[...new Set(items.map(i=>i.cat).filter(Boolean))];setTimeout(()=>{const cl=document.getElementById('catlist');if(cl)cl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');const pl=document.getElementById('projlist');if(pl)pl.innerHTML=ps.map(p=>`<option value="${p.name}">`).join('');},50);
+async function quickAdd(){
+  const existing = document.getElementById('qamenu');
+  if(existing){ existing.remove(); return; }
+  const btn = document.getElementById('add');
+  const rect = btn.getBoundingClientRect();
+  const menu = document.createElement('div');
+  menu.id = 'qamenu';
+  menu.style.cssText = 'position:fixed;top:'+(rect.bottom+4)+'px;right:12px;background:#2c2c2e;border-radius:10px;padding:6px;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,0.4);min-width:140px';
+  menu.innerHTML = `
+    <div style="padding:8px 12px;cursor:pointer" onclick="document.getElementById('qamenu').remove();doQuickAddTask()">+ Task</div>
+    <div style="padding:8px 12px;cursor:pointer" onclick="document.getElementById('qamenu').remove();quickAddNote()">+ Note</div>
+    <div style="padding:8px 12px;cursor:pointer" onclick="document.getElementById('qamenu').remove();addNewRoutine()">+ Routine</div>
+    <div style="padding:8px 12px;cursor:pointer" onclick="document.getElementById('qamenu').remove();go('resources');settings.showAddRes=true;saveSet();go('resources')">+ Resource</div>
+  `;
+  document.body.appendChild(menu);
+  setTimeout(()=>document.addEventListener('click', function h(e){ if(!menu.contains(e.target) && e.target!==btn){ menu.remove(); document.removeEventListener('click', h); } }, {once:true}), 10);
+}
+async function doQuickAddTask(){const items=await all('items');const ps=await all('projects');const cats=[...new Set(items.map(i=>i.cat).filter(Boolean))];setTimeout(()=>{const cl=document.getElementById('catlist');if(cl)cl.innerHTML=cats.map(c=>`<option value="${c}">`).join('');const pl=document.getElementById('projlist');if(pl)pl.innerHTML=ps.map(p=>`<option value="${p.name}">`).join('');},50);
   const defType = page==='ideas' ? 'idea' : 'task';
   modal(`<h2>Quick Add</h2>
     <div style="display:flex;gap:8px;margin-bottom:8px"><button class="small btn" onclick="document.getElementById('modal').classList.add('hide');quickAddNote()">+ Note</button></div>
@@ -273,7 +290,7 @@ function togglePinNote(id, on){
   else settings.pinnedNotes = settings.pinnedNotes.filter(x=>x!==id);
   saveSet();
 }
-async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+label+'</div>';}); h+='</div>'; } const upR=items.filter(i=>i.countdown&&i.due&&!i.done).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Key Dates</h2><div id="rems" class="sec-body">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')">'+i.title+' — '+label+'</div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&(!['daily','weekly'].includes(i.recurrence||'') || (i.recurrence==='monthly' && (new Date(i.due).getTime() + 23*86400000) > Date.now()))); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Today</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600"><span style="cursor:pointer" onclick="event.stopPropagation();editOneRoutine(${b.id},'today')">${b.name}</span><span style="display:flex;gap:8px;align-items:center"><span onclick="event.stopPropagation();resetRoutine(${b.id})" style="cursor:pointer;font-size:1.4rem" title="Reset">↻</span><span id="arrow${b.id}" style="font-size:1.3rem;font-weight:400;cursor:pointer" onclick="toggleSec('rb${b.id}')">${(settings.collapsed||{})['rb'+b.id]?'+':'−'}</span></span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>{const indent=(x.match(/^ +/)||[''])[0].length/2; const hi=(b.highlightText||[]).includes(x); return `<div style="padding:2px 0 2px ${indent*16}px;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''};background:${hi?'#EAA000':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x.trim()}</div>`;}).join('')}</div></div>`;});h+='</div></div>';}const notes = await all('notes'); 
+async function renderToday(el){const items=await all('items');const today=new Date().toISOString().slice(0,10);const due=items.filter(i=>i.due===today&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder'));const in3=new Date(Date.now()+3*86400000).toISOString().slice(0,10); const upcoming=items.filter(i=>i.due&&i.due>today&&i.due<=in3&&!i.done&&i.showInToday!==false&&!i.title.includes('category placeholder')).sort((a,b)=>a.due.localeCompare(b.due));const waiting=items.filter(i=>i.type==='idea'&&!i.done).slice(0,5);const cds=await all('countdowns');let h=''; const tdy=new Date().toISOString().slice(0,10); const rems=items.filter(i=>i.reminder&&i.due&&!i.done); const dueR=rems.filter(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); return ['0d','1d','2d','7d','14d','28d'].some(v=>(i.rem1===v||i.rem2===v)&&d===parseInt(v));}); if(dueR.length&&settings.lastBanner!==tdy){ h+='<div style="background:#EF0037;padding:10px;border-radius:8px;margin-bottom:8px;color:#fff;font-size:0.9rem"><span style="float:right;font-size:1.1rem" onclick="this.parentElement.remove();settings.lastBanner=\''+tdy+'\';saveSet()">×</span>'; dueR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')" style="display:flex;align-items:baseline;gap:0"><span style="width:72px;text-align:right;flex-shrink:0">'+label+'</span><span style="width:20px;text-align:center;flex-shrink:0">–</span><span>'+i.title+'</span></div>';}); h+='</div>'; } const upR=items.filter(i=>i.countdown&&i.due&&!i.done).sort((a,b)=>a.due.localeCompare(b.due)); if(upR.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'rems\')">Key Dates</h2><div id="rems" class="sec-body" style="border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;margin:4px 0">'; upR.forEach(i=>{const d=Math.ceil((new Date(i.due)-new Date())/86400000); const label=d===0?'Today':d===1?'Tomorrow':d+'d'; h+='<div onclick="openItem('+i.id+')" style="display:flex;align-items:baseline;gap:0"><span style="width:72px;text-align:right;flex-shrink:0">'+label+'</span><span style="width:20px;text-align:center;flex-shrink:0">–</span><span>'+i.title+'</span></div>';}); h+='</div></div>'; }const overdue=items.filter(i=>i.due&&i.due<today&&!i.done&&(!['daily','weekly'].includes(i.recurrence||'') || (i.recurrence==='monthly' && (new Date(i.due).getTime() + 23*86400000) > Date.now()))); if(overdue.length){ h+='<div class="sec"><h2 onclick="toggleSec(\'ovd\')">Overdue</h2><div id="ovd" class="sec-body">'+overdue.map(row).join('')+'</div></div>'; } h+=`<div class="sec"><h2 onclick="toggleSec('up')">Today</h2><div id="up" class="sec-body">${due.map(row).join('')||'<p>Nothing urgent</p>'}</div></div>`;if(upcoming.length)h+=`<div class="sec"><h2 onclick="toggleSec('upc')">Next 3 days</h2><div id="upc" class="sec-body">${upcoming.map(row).join('')}</div></div>`;if(settings.showWaiting!==false && settings.gentle&&waiting.length)h+=`<div class="sec"><h2 onclick="toggleSec('wait')">Waiting</h2><div id="wait" class="sec-body">${waiting.map(row).join('')}</div></div>`;const shown=settings.showRoutines!==false ? routines.filter(r=>r.showOnToday) : [];if(shown.length){h+=`<div class="sec"><h2 onclick="toggleSec('rout')">Routines</h2><div id="rout" class="sec-body">`;shown.forEach(b=>{h+=`<div class="block"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-weight:600"><span style="cursor:pointer" onclick="event.stopPropagation();editOneRoutine(${b.id},'today')">${b.name}</span><span style="display:flex;gap:8px;align-items:center"><span onclick="event.stopPropagation();resetRoutine(${b.id})" style="cursor:pointer;font-size:1.4rem" title="Reset">↻</span><span id="arrow${b.id}" style="font-size:1.3rem;font-weight:400;cursor:pointer" onclick="toggleSec('rb${b.id}')">${(settings.collapsed||{})['rb'+b.id]?'+':'−'}</span></span></div><div id="rb${b.id}" class="sec-body" style="padding:4px 14px">${(b.items||[]).filter(Boolean).map((x,idx)=>{const indent=(x.match(/^ +/)||[''])[0].length/2; const hi=(b.highlightText||[]).includes(x); return `<div style="padding:2px 0 2px ${indent*16}px;cursor:pointer;text-decoration:${(b.done||{})[idx]?'line-through':''};background:${hi?'#EAA000':''}" onclick="toggleRoutineLine(${b.id},${idx})">• ${x.trim()}</div>`;}).join('')}</div></div>`;});h+='</div></div>';}const notes = await all('notes'); 
 const pinned = settings.pinnedNotes || [];
 const displayNotes = pinned.length ? notes.filter(n=>pinned.includes(n.id)).slice(0,4) : notes.sort((a,b)=>(b.updated||b.created)-(a.updated||a.created)).slice(0,4);
 h+='<div class="sec"><h2 onclick="toggleSec(\'notestd\')" style="display:flex;justify-content:space-between;align-items:center">Notes <span onclick="event.stopPropagation();chooseMyDayNotes()" style="cursor:pointer;padding:4px" title="Pin notes"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5M9 11V7a3 3 0 016 0v4M5 11h14v4H5z"/></svg></span></h2><div id="notestd" class="sec-body" style="display:flex;gap:6px">';
@@ -316,7 +333,7 @@ async function renderHabits(el){
       cal += '<div style="display:flex;flex-direction:column;align-items:center;width:22px"><span style="font-size:0.55rem;color:var(--text-sec);line-height:1">'+d.getDate()+'</span><div style="width:22px;height:22px;border-radius:50%;background:'+(st==='done'?'#34c759':'#3a3a3c')+';border:'+(st==='skip'?'2px dotted #ff9500':isDue?'2px solid #fff':'none')+';display:flex;align-items:center;justify-content:center;font-size:0.75rem;color:#fff;cursor:pointer" onclick="event.stopPropagation();quickMark('+it.id+',\''+k+'\')">'+(st==='done'?'✓':'')+'</div></div>';
     }
     cal += '</div>';
-    h += '<div class="block"><div class="block-h" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="openItem('+it.id+')"><span>'+it.title+'</span><span style="display:flex;gap:6px;align-items:center"><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveHabit('+it.id+',-1)">↑</span><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveHabit('+it.id+',1)">↓</span> <span style="font-size:0.85rem">🔥 '+streak+'</span></span></div><div style="padding:8px 14px">'+cal+'</div></div>';
+    h += '<div class="block"><div class="block-h" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="openItem('+it.id+')"><span>'+it.title+'</span><span style="display:flex;gap:6px;align-items:center"><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveHabit('+it.id+',-1)">▲</span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveHabit('+it.id+',1)">▼</span> <span style="font-size:0.85rem">🔥 '+streak+'</span></span></div><div style="padding:8px 14px">'+cal+'</div></div>';
     });
     h += '</div></div>';
   });
@@ -459,7 +476,7 @@ async function renderNotes(el){
     });
     sorted.forEach(n=>{
       const preview = strip(n.body).slice(0,80);
-      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:10px" onclick="openNote(${n.id})"><div style="flex:1;min-width:0"><div class="t">${n.title||'Untitled'}</div><div class="m">${preview}${preview.length>=80?'…':''}</div></div><div style="display:flex;gap:6px;flex-shrink:0"><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveNote(${n.id},-1)">↑</span><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveNote(${n.id},1)">↓</span></div></div>`;
+      html += `<div class="item" style="--c:${n.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;padding:10px" onclick="openNote(${n.id})"><div style="flex:1;min-width:0"><div class="t">${n.title||'Untitled'}</div><div class="m">${preview}${preview.length>=80?'…':''}</div></div><div style="display:flex;gap:6px;flex-shrink:0"><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveNote(${n.id},-1)">▲</span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveNote(${n.id},1)">▼</span></div></div>`;
     });
     html += '</div>';
   }
@@ -642,7 +659,7 @@ function confirmDeleteNote(id){
 async function renderRoutinesPage(el){
   let h = `<div class="sec">`;
   routines.forEach((b,idx)=>{
-    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">${(settings.collapsed||{})['rp'+b.id]?'+':'−'}</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>{const indent=(x.match(/^ +/)||[''])[0].length/2; return `<div style="padding-left:${indent*16}px">• ${x.trim()}</div>`;}).join('')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">My Day</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:transparent;color:inherit;border:none" onclick="moveRoutine(${idx},-1)">↑</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:transparent;color:inherit;border:none" onclick="moveRoutine(${idx},1)">↓</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
+    h += `<div class="block ${b.showOnToday?'':'off'}"><div class="block-h" style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;font-weight:600" onclick="toggleSec('rp${b.id}')"><span>${b.name}</span><span id="arrowrp${b.id}" style="font-size:1rem">${(settings.collapsed||{})['rp'+b.id]?'+':'−'}</span></div><div id="rp${b.id}" class="sec-body" style="padding:8px 14px">${(b.items||[]).filter(Boolean).map(x=>{const indent=(x.match(/^ +/)||[''])[0].length/2; return `<div style="padding-left:${indent*16}px">• ${x.trim()}</div>`;}).join('')||'Empty'}<div style="margin-top:8px"><button class="small btn" onclick="toggleRoutineToday(${b.id})" style="${b.showOnToday?'':'text-decoration:line-through;opacity:0.6'}">My Day</button> <button class="small btn" onclick="editOneRoutine(${b.id})">Edit</button> <button class="small btn" onclick="renameRoutine(${b.id})">Rename</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:transparent;color:inherit;border:none" onclick="moveRoutine(${idx},-1)">▲</button> <button class="small btn" style="min-width:32px;padding:4px 8px;background:transparent;color:inherit;border:none" onclick="moveRoutine(${idx},1)">▼</button> <button class="small btn" style="background:#c00" onclick="event.stopPropagation();confirmDeleteRoutine(${b.id})">Delete</button></div></div></div>`;
   });
   el.innerHTML = h + '</div><button class="btn btn-main" onclick="addNewRoutine()">+ New routine</button>';
   Object.entries(settings.collapsed||{}).forEach(([id,c])=>{if(c && id.startsWith('rp')){const e=document.getElementById(id);if(e)e.classList.add('collapsed');const arrow=document.getElementById('arrow'+id);if(arrow)arrow.textContent='+';}});
@@ -721,13 +738,13 @@ function editOneRoutine(id, returnPage){
   let html=`<h2>Edit ${b.name}</h2><textarea id="rpaste" placeholder="Paste one item per line" style="height:80px;margin-bottom:8px"></textarea><button class="small btn" onclick="const lines=document.getElementById('rpaste').value.split('\\n').map(s=>s.trim()).filter(Boolean);const r=routines.find(x=>x.id===${id});r.items=(r.items||[]).concat(lines);saveSet();editOneRoutine(${id},'${returnPage||'routines'}')">Paste items</button><hr>`;
   (b.items||[]).forEach((item,j)=>{
     const highlighted = (b.highlightText||[]).includes(item);
-    html+=`<div style="display:flex;gap:4px;align-items:center;margin:4px 0;background:${highlighted?'#3a3a3c':''}"><input style="flex:1" value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value;saveSet()"><button class="small btn" style="background:${highlighted?'#EAA000':'#555'}" onclick="const r=routines.find(x=>x.id===${id});r.highlightText=r.highlightText||[];const t=r.items[${j}];if(r.highlightText.includes(t))r.highlightText=r.highlightText.filter(x=>x!==t);else r.highlightText.push(t);saveSet();editOneRoutine(${id},'${returnPage||'routines'}')">★</button><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}>0){const t=r.items[${j}];r.items[${j}]=r.items[${j}-1];r.items[${j}-1]=t;saveSet();editOneRoutine(${id},'${returnPage||'routines'}')}">↑</button><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}<r.items.length-1){const t=r.items[${j}];r.items[${j}]=r.items[${j}+1];r.items[${j}+1]=t;saveSet();editOneRoutine(${id},'${returnPage||'routines'}')}">↓</button></div>`;
+    html+=`<div style="display:flex;gap:4px;align-items:center;margin:4px 0;background:${highlighted?'#3a3a3c':''}"><input style="flex:1" value="${(item||'').replace(/"/g,'"')}" onchange="routines.find(x=>x.id===${id}).items[${j}]=this.value;saveSet()"><button class="small btn" style="background:${highlighted?'#EAA000':'#555'}" onclick="const r=routines.find(x=>x.id===${id});r.highlightText=r.highlightText||[];const t=r.items[${j}];if(r.highlightText.includes(t))r.highlightText=r.highlightText.filter(x=>x!==t);else r.highlightText.push(t);saveSet();editOneRoutine(${id},'${returnPage||'routines'}')">★</button><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}>0){const t=r.items[${j}];r.items[${j}]=r.items[${j}-1];r.items[${j}-1]=t;saveSet();editOneRoutine(${id},'${returnPage||'routines'}')}">▲</button><button class="small btn" onclick="const r=routines.find(x=>x.id===${id});if(${j}<r.items.length-1){const t=r.items[${j}];r.items[${j}]=r.items[${j}+1];r.items[${j}+1]=t;saveSet();editOneRoutine(${id},'${returnPage||'routines'}')}">▼</button></div>`;
   });
   html+=`<button class="small btn" onclick="routines.find(x=>x.id===${id}).items.push('');saveSet();editOneRoutine(${id},'${returnPage||'routines'}')">+ Item</button><button class="btn btn-main" onclick="saveSet();document.getElementById('modal').classList.add('hide');go('${returnPage||'routines'}')">Save</button>`;
   modal(html);
 }
 
-function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');const arrows = ((settings.sort==='manual' || settings.secSort==='manual') && page==='tasks') ? `<div style="display:flex;gap:4px;margin-left:8px"><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveTask(${i.id},-1)">↑</span><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveTask(${i.id},1)">↓</span></div>` : '';return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'};display:flex;align-items:center" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner" style="flex:1"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div>${arrows}</div>`;}
+function row(i){const habit=i.trackHabit?' · habit':'';const rec=i.recurrence?` · ${i.recurrence}`:'';const upcoming=i.due&&i.due>new Date().toISOString().slice(0,10)?' · upcoming':'';const tags=(i.tags||[]).map(t=>`<span class="tag">${t}</span>`).join('');const arrows = ((settings.sort==='manual' || settings.secSort==='manual') && page==='tasks') ? `<div style="display:flex;gap:4px;margin-left:8px"><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveTask(${i.id},-1)">▲</span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveTask(${i.id},1)">▼</span></div>` : '';return `<div class="item ${i.done?'done':''} ${selected.has(i.id)?'selected':''}" style="--c:${i.color||'#6b7280'};display:flex;align-items:center" onclick="if(selectMode){toggleSelect(${i.id});return;}openItem(${i.id})"><div class="item-inner" style="flex:1"><input type="checkbox" data-id="${i.id}" ${i.done?'checked':''} onclick="event.stopPropagation()"><div class="txt"><div class="t">${i.image?`<img src="${i.image}" style="height:20px;vertical-align:middle;margin-right:4px">`:''}${i.title}</div><div class="m">${i.due||'no date'}${rec}${upcoming} · ${i.cat||''}${habit}<br>${tags}</div></div></div>${arrows}</div>`;}
 
 function toggleSelect(id){if(selected.has(id))selected.delete(id);else selected.add(id);if(page==='tasks'||page==='ideas')renderList(document.getElementById('main'),page==='tasks'?'task':'idea');}
 
@@ -890,9 +907,10 @@ function showPasteModal(){
     <label>Recurrence (shared)</label><select id="prec"><option value="">None</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select>
     <label>Category (shared)</label><input id="pcat" value="[Misc]">
     <label>Colour</label><input id="pcol" type="color" value="#6b7280">
-    <div style="display:flex;gap:12px;flex-wrap:wrap;margin:8px 0">
+    <div style="display:flex;gap:8px;flex-wrap:nowrap;font-size:0.85rem;margin:8px 0">
       <label><input type="checkbox" id="ptoday" checked> My Day</label>
       <label><input type="checkbox" id="premind" onchange="document.getElementById('premotps').style.display=this.checked?'block':'none'"> Reminder</label>
+      <label><input type="checkbox" id="pcountdown"> Countdown</label>
       <label><input type="checkbox" id="pcal" checked> Calendar</label>
       <label><input type="checkbox" id="phabit"> Habit</label>
     </div>
@@ -913,11 +931,12 @@ async function doPaste(){
   const showToday = document.getElementById('ptoday').checked;
   const showCal = document.getElementById('pcal').checked;
   const remind = document.getElementById('premind').checked;
+  const countdown = document.getElementById('pcountdown').checked;
   const rem1 = document.getElementById('prem1')?.value || '';
   const rem2 = document.getElementById('prem2')?.value || '';
   const lines = text.split('\n').map(l=>l.trim()).filter(Boolean);
   for(const title of lines){
-    await add('items',{title, type:'task', due, recurrence:rec, done:false, color:col, cat, created:Date.now(), trackHabit:habit || !!rec, showInCal:showCal, showInToday:showToday, reminder:remind, rem1, rem2, completions:{}});
+    await add('items',{title, type:'task', due, recurrence:rec, done:false, color:col, cat, created:Date.now(), trackHabit:habit || !!rec, showInCal:showCal, showInToday:showToday, reminder:remind, countdown:countdown, rem1, rem2, completions:{}});
   }
   document.getElementById('modal').classList.add('hide');
   go('tasks');
@@ -1040,7 +1059,8 @@ let keepCalFilt=false;async function renderCal(el){
   } else for (let d = 1; d <= days; d++) {
     const key = year + '-' + String(month+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
     const has = byDate[key] ? byDate[key].length : 0;
-    h += `<div style="padding:8px 0;border-radius:8px;${has?'background:var(--accent);color:#fff':''}" onclick="showDay('${key}', true)">${d}</div>`;
+    const accent = settings.scheme==='warm'?'#EAA000':settings.scheme==='cool'?'#3A87FE':'#34c759';
+    h += `<div style="padding:8px 0;border-radius:8px;${has?'background:'+accent+';color:#fff':''}" onclick="showDay('${key}', true)">${d}</div>`;
   }
   h += '</div><div id="daylist" style="margin-top:12px"></div></div>';
   el.innerHTML = h; if((settings.calView||'month')==='day'){ const today=new Date().toISOString().slice(0,10); setTimeout(()=>showDay(today, true), 30); }
@@ -1055,7 +1075,7 @@ async function renderInbox(el){
   const items = (await all('items')).filter(i=>!i.cat||i.cat==='General'||i.cat==='[Misc]'||!i.due && !i.title.includes('category placeholder')).sort((a,b)=>(a.order||0)-(b.order||0));
   let html = '<div class="sec">';
   items.forEach((i,idx)=>{
-    html += `<div class="item" style="--c:${i.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openItem(${i.id})"><div class="t" style="flex:1">${i.title}</div><div style="display:flex;gap:4px"><button class="small btn" onclick="event.stopPropagation();moveItemOrder(${i.id},-1)">↑</button><button class="small btn" onclick="event.stopPropagation();moveItemOrder(${i.id},1)">↓</button></div></div>`;
+    html += `<div class="item" style="--c:${i.color||'#6b7280'};display:flex;align-items:center;justify-content:space-between" onclick="openItem(${i.id})"><div class="t" style="flex:1">${i.title}</div><div style="display:flex;gap:6px"><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveItemOrder(${i.id},-1)">▲</span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveItemOrder(${i.id},1)">▼</span></div></div>`;
   });
   html += '</div>';
   el.innerHTML = html || '<p style="color:var(--text-sec);padding:8px 0">Add a task</p>';
@@ -1099,7 +1119,7 @@ async function renderProjects(el){
         const linked = items.filter(i => i.projectId === p.id).sort((a,b)=>(a.order||0)-(b.order||0));
         const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
         const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
-        html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center"><span>${p.name}</span><span><button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},-1)">↑</button> <button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},1)">↓</button></span></div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
+        html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center"><span>${p.name}</span><span><button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},-1)">▲</button> <button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},1)">▼</button></span></div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
       });
       html += '</div></div>';
     });
@@ -1108,7 +1128,7 @@ async function renderProjects(el){
       const linked = items.filter(i => i.projectId === p.id);
       const allSubs = linked.flatMap(i => i.subtasks || []); const total = allSubs.length || linked.length; const doneCount = allSubs.length ? allSubs.filter(s=>s.done).length : linked.filter(i=>i.done).length; const pct = total ? Math.round(doneCount / total * 100) : 0;
       const col = (settings.catColors||{})[p.cat] || p.color || '#6b7280';
-      const arrows = (sort !== 'date') ? `<span><button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},-1)">↑</button> <button class="small btn" style="background:rgba(0,0,0,0.3)" onclick="event.stopPropagation();moveProject(${p.id},1)">↓</button></span>` : '';
+      const arrows = (sort !== 'date') ? `<span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveProject(${p.id},-1)">▲</span> <span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveProject(${p.id},1)">▼</span></span>` : '';
       html += `<div class="block" onclick="openProject(${p.id})"><div class="block-h" style="background:${col};color:#fff;padding:16px 16px;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center"><span>${p.name}</span>${arrows}</div><div style="padding:8px 14px">Tasks: ${linked.length} · ${pct}% done<div style="height:6px;background:var(--border);border-radius:3px;margin-top:4px"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px"></div></div></div></div>`;
     });
   }
@@ -1159,11 +1179,18 @@ async function openProject(id){
   if(sortMode === 'date') linked.sort((a,b)=>(a.due||'9999').localeCompare(b.due||'9999'));
   else linked.sort((a,b)=>(a.order??9999)-(b.order??9999));
   let html = `<h2>${p.name}</h2><p>Category: ${p.cat||'–'} · ${linked.length} tasks</p>`;
-  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0"><span style="font-weight:600;cursor:pointer" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">▼ View tasks (${linked.length})</span><button class="small btn" onclick="settings.projTaskSort=settings.projTaskSort==='date'?'manual':'date';saveSet();openProject(${id})">${sortMode==='date'?'Sort: Date':'Sort: Manual'}</button></div><div style="max-height:40vh;overflow-y:auto">`;
-  html += linked.map((i,idx) => `<div class="item" style="--c:${i.color};padding:6px 10px;margin:4px 0;display:flex;align-items:center" onclick="openItem(${i.id})"><div class="t" style="font-size:0.9rem;flex:1">${i.title}</div><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},-1)">↑</span><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},1)">↓</span><span style="font-size:1.2rem;font-weight:300;color:#fff;padding:0 8px;cursor:pointer;line-height:1" onclick="event.stopPropagation();toggleProjectTask(${i.id},${id},false)">×</span></div>`).join('') || '<p>No tasks yet</p>';
+  const openTasks = linked.filter(i=>!i.done);
+  const doneTasks = linked.filter(i=>i.done);
+  html += `<div style="display:flex;justify-content:space-between;align-items:center;margin:8px 0"><span style="font-weight:600;cursor:pointer" onclick="const b=document.getElementById('projtasks');const open=b.style.display!=='none';b.style.display=open?'none':'block';this.querySelector('span').textContent=open?'+':'−'"><span>−</span> View tasks (${linked.length})</span><button class="small btn" onclick="settings.projTaskSort=settings.projTaskSort==='date'?'manual':'date';saveSet();openProject(${id})">${sortMode==='date'?'Sort: Date':'Sort: Manual'}</button></div><div id="projtasks" style="max-height:40vh;overflow-y:auto">`;
+  html += openTasks.map((i,idx) => `<div class="item" style="--c:${i.color};padding:6px 10px;margin:4px 0;display:flex;align-items:center" onclick="openItem(${i.id})"><div class="t" style="font-size:0.9rem;flex:1">${i.title}</div><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},-1)">▲</span><span style="font-size:0.9rem;padding:0 6px;cursor:pointer" onclick="event.stopPropagation();moveTaskInProject(${i.id},${id},1)">▼</span><span style="font-size:1.2rem;font-weight:300;color:#fff;padding:0 8px;cursor:pointer;line-height:1" onclick="event.stopPropagation();toggleProjectTask(${i.id},${id},false)">×</span></div>`).join('');
+  if(doneTasks.length){
+    html += `<div style="margin-top:8px;font-size:0.85rem;opacity:0.7;cursor:pointer" onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none'">Completed (${doneTasks.length})</div><div style="display:none">`;
+    html += doneTasks.map(i => `<div class="item" style="--c:${i.color};padding:6px 10px;margin:4px 0;opacity:0.6;text-decoration:line-through" onclick="openItem(${i.id})"><div class="t" style="font-size:0.9rem">${i.title}</div></div>`).join('');
+    html += '</div>';
+  }
   html += '</div>';
-  html += `<button class="btn" onclick="manageProjectTasks(${id})">Add / remove tasks</button><button class="btn" onclick="pasteToProject(${id})">Paste tasks</button><button class="btn" onclick="renameProject(${id})">Rename</button><button class="btn" onclick="editProjectCat(${id})">Change category</button>`;
-  html += `<button class="btn" style="background:#c00" onclick="delProject(${id})">Delete project</button>`;
+  html += '</div>';
+  html += `<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px"><button class="small btn" onclick="manageProjectTasks(${id})">Add / remove</button><button class="small btn" onclick="pasteToProject(${id})">Paste</button><button class="small btn" onclick="renameProject(${id})">Rename</button><button class="small btn" onclick="editProjectCat(${id})">Category</button><button class="small btn" style="background:#c00" onclick="delProject(${id})">Delete</button></div>`;
   modal(html);
 }
 async function moveTaskInProject(tid, pid, dir){
@@ -1344,7 +1371,7 @@ async function renderResources(el){
       html += '<div class="sec"><div class="sec-h" style="font-weight:600;font-size:1.05rem;margin-top:8px;padding:6px 0;border-bottom:1px solid var(--border)">'+s+'</div><div class="sec-body">';
       html += groups[s].map(r => {
         const days = r.lastOpened ? Math.floor((Date.now()-r.lastOpened)/86400000) : '–';
-        return `<div class="item" style="--c:${r.color||'#6b7280'};position:relative;display:flex;align-items:center;justify-content:space-between"><div style="flex:1" onclick="openResource(${r.id})"><div class="t">${r.title}</div><div class="m">${r.url||''} · ${days}d ago</div></div><div style="display:flex;gap:6px;align-items:center"><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveResource(${r.id},-1)">↑</span><span style="cursor:pointer;font-size:1.1rem;opacity:0.7" onclick="event.stopPropagation();moveResource(${r.id},1)">↓</span><span style="font-size:0.85rem;opacity:0.8;cursor:pointer" onclick="event.stopPropagation();editResource(${r.id})">edit</span></div></div>`;
+        return `<div class="item" style="--c:${r.color||'#6b7280'};position:relative;display:flex;align-items:center;justify-content:space-between"><div style="flex:1" onclick="openResource(${r.id})"><div class="t">${r.title}</div><div class="m">${r.url||''} · ${days}d ago</div></div><div style="display:flex;gap:6px;align-items:center"><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveResource(${r.id},-1)">▲</span><span style="cursor:pointer;font-size:0.95rem;opacity:0.7" onclick="event.stopPropagation();moveResource(${r.id},1)">▼</span><span style="font-size:0.85rem;opacity:0.8;cursor:pointer" onclick="event.stopPropagation();editResource(${r.id})">edit</span></div></div>`;
       }).join('');
       html += '</div></div>';
     });
@@ -1523,7 +1550,7 @@ function showGuide(){
     <p><strong>Tasks / Ideas</strong> – Full lists with grouping, sorting, multi-select, board view, and bulk actions.</p>
     <p><strong>Habits</strong> – Track recurring items. Tap circles to mark done or skip. Streaks respect frequency.</p>
     <p><strong>Calendar</strong> – Month/week/day views with category and frequency filters.</p>
-    <p><strong>Projects</strong> – Group tasks. Use ↑/↓ to reorder tasks inside a project. Colour comes from category.</p>
+    <p><strong>Projects</strong> – Group tasks. Use ▲/▼ to reorder tasks inside a project. Colour comes from category.</p>
     <p><strong>Notes</strong> – Freeform notes with colour. Quick-add from the Notes page.</p>
     <p><strong>Resources</strong> – Links and inspiration. Toggle add form and board/list view.</p>
     <p><strong>Routines</strong> – Collapsible daily lists. Show on Today and tap lines to mark done.</p>
@@ -1533,34 +1560,28 @@ function showGuide(){
 }
 function showSet(){
   modal(`<h2>Settings</h2>
+    <label style="font-size:0.75rem;color:var(--text-sec)">Font</label>
     <select id="font" onchange="settings.font=this.value;saveSet();applyFont()">
       <option value="Geneva,sans-serif">Geneva</option>
-      <option value="Helvetica,Arial,sans-serif">Helvetica</option>
-      <option value="Arial,sans-serif">Arial</option>
       <option value="Verdana,sans-serif">Verdana</option>
       <option value="Trebuchet MS,sans-serif">Trebuchet MS</option>
-      <option value="Tahoma,sans-serif">Tahoma</option>
-      <option value="Segoe UI,sans-serif">Segoe UI</option>
       <option value="Palatino,serif">Palatino</option>
-      <option value="Consolas,monospace">Consolas</option>
       <option value="Monaco,monospace">Monaco</option>
-      <option value="Menlo,monospace">Menlo</option>
     </select>
-    <select id="th"><option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option></select>
+    <label style="font-size:0.75rem;color:var(--text-sec)">Theme</label>
+    <select id="th" onchange="settings.theme=this.value;saveSet();applyTheme()">
+      <option value="auto">Auto</option><option value="light">Light</option><option value="dark">Dark</option>
+    </select>
+    <label style="font-size:0.75rem;color:var(--text-sec)">Colour scheme</label>
     <select id="scheme" onchange="settings.scheme=this.value;saveSet();applyScheme()">
       <option value="default" ${settings.scheme==='default'||!settings.scheme?'selected':''}>Default</option>
       <option value="warm" ${settings.scheme==='warm'?'selected':''}>Warm grey</option>
       <option value="cool" ${settings.scheme==='cool'?'selected':''}>Cool grey</option>
     </select>
-    <div style="display:flex;flex-wrap:wrap;gap:12px;margin:8px 0">
-      <label style="text-align:center"><input type="checkbox" id="g" ${settings.gentle?'checked':''}><br>Waiting</label>
-      <label style="text-align:center"><input type="checkbox" id="showr" ${settings.showRoutines!==false?'checked':''}><br>Routines</label>
-    </div>
     <div style="display:flex;gap:8px;margin:8px 0">
       <button class="btn" style="flex:1" onclick="exportData()">Export</button>
       <button class="btn" style="flex:1" onclick="importData()">Import</button>
     </div>
-    <button class="btn btn-main" onclick="settings.theme=document.getElementById('th').value;settings.gentle=document.getElementById('g').checked;settings.focus=document.getElementById('focus').checked;settings.showRoutines=document.getElementById('showr').checked;saveSet();applyTheme();document.getElementById('modal').classList.add('hide')">Save</button>
     <button class="btn" style="margin-top:8px" onclick="showGuide()">Guide</button>`);
   document.getElementById('th').value=settings.theme;
   const fs=document.getElementById('font'); if(fs) fs.value=settings.font||'Geneva,sans-serif';
