@@ -11,7 +11,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#6b7280">
-<title>Organiser v27.98</title>
+<title>Organiser v28.00</title>
 <style>
 :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text-sec:#6e6e73; --accent:#6b7280; --border:#e0e0e0; --nav-h:72px; --safe-b:env(safe-area-inset-bottom,0px); }
 [data-theme="dark"] { --bg:#1c1c1e; --surface:#2c2c2e; --text:#f5f5f7; --text-sec:#98989d; --accent:#9ca3af; --border:#3a3a3c; }
@@ -85,7 +85,7 @@ input[type=date], input[type=color] { height:44px; }
     <button data-p="more" title="More"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg></button>
   </nav>
 </div>
-<div id="ver">v27.98</div>
+<div id="ver">v28.00</div>
 <div id="modal" class="modal hide"><div class="modal-c"><span id="close" style="float:right;font-size:1.6rem;margin-right:12px">&times;</span><div id="mbody"></div></div></div>
 <script>
 document.getElementById('search').innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>';
@@ -546,18 +546,22 @@ async function openNote(id){
           img.style.maxWidth='100%';
           img.style.display='block';
           img.style.width='100%';
-          // Convert blob URLs to permanent data URLs
-          if(img.src && img.src.startsWith('blob:')){
+          // Convert blob and compress
+          if(img.src && (img.src.startsWith('blob:') || img.src.startsWith('data:'))){
             try {
-              const res = await fetch(img.src);
-              const blob = await res.blob();
-              const dataUrl = await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob);});
-              img.src = dataUrl;
+              const canvas = document.createElement('canvas');
+              const maxW = 800;
+              const scale = Math.min(1, maxW / (img.naturalWidth || maxW));
+              canvas.width = (img.naturalWidth || maxW) * scale;
+              canvas.height = (img.naturalHeight || 600) * scale;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+              img.src = canvas.toDataURL('image/jpeg', 0.7);
             } catch(e){}
           }
         }
         noteHistoryPush();
-      }, 50);
+      }, 80);
     });
   },200);
   window.noteHist = [n.body||'']; window.noteHistIdx = 0;
